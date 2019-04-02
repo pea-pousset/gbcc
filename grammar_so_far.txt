@@ -1,0 +1,35 @@
+alpha                     = "a" | "b" | ... | "z" | "A" | "B" | ... | "Z" ;
+digit_minus_zero          = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+digit                     = digit_minus_zero | "0" ;
+oct_digit                 = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" ;
+hex_digit                 = digit | "a" | "b" | "c" | "d" | "e" | "f" | "A" | "B" | "C" | "D" | "E" | "F" ;
+alphanum                  = alpha | digit ;
+
+oct_constant              = "0" {oct_digit} ;
+dec_constant              = digit_minus_zero {digit} ;
+hex_constant              = "0" ("x" | "X") hex_digit {hex_digit} ;
+identifier                = (alpha | "_") {alphanum | "_"} ;
+constant                  = oct_constant | dec_constant | hex_constant ;
+
+unary_operator            = "+" | "-" ;
+
+primary_expression        = identifier | constant | "(" expression ")" ;
+unary_expression          = {unary_operator} primary_expression ;
+multiplicative_expression = unary_expression {("*" | "/" | "%") unary_expression} ;
+additive_expression       = multiplicative_expression {("+" | "-") multiplicative_expression} ;
+expression                = additive_expression ;
+
+declaration               = type_specifier [init_declarator_list] ";" ;
+direct_declarator         = identifier ["(" ")"] 
+init_declarator_list      = init_declarator {"," init_declarator} ;
+init_declarator           = direct_declarator ["=" additive_expression] ;
+
+type_specfier             = "byte" | "word" ;  
+
+statement                 = compound_statement | expression_statement ;
+compound_statement        = "{" {declaration} {statement} "}" ; 
+expression_statement      = [expression] ";"
+jump_statement            = "return" [expression] ";" ;
+
+external_declaration      = declaration ;
+translation_unit          = {external_declaration}

@@ -1,0 +1,126 @@
+#include "utils.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef _WIN32
+    #include <windows.h>
+#elif linux
+    #include <unistd.h>
+    #include <linux/limits.h>
+#else
+    #include <unistd.h>
+    #include <limits.h>
+#endif
+
+#ifndef PATH_MAX
+    #ifdef MAX_PATH
+        #define PATH_MAX    MAX_PATH
+    #else
+        #define PATH_MAX    4096
+    #endif
+#endif
+
+#include "errors.h"
+
+
+/*=======================================================================*//**
+ * Like malloc(), but throws a fatal error in case of failure
+ *//*========================================================================*/
+ void* mmalloc(size_t size)
+ {
+    void* new = malloc(size);
+    if (new == NULL)
+        ccerr(F, "unable to allocate memory");
+    return new;
+ }
+
+ /*=======================================================================*//**
+ * Like realloc(), but throws a fatal error in case of failure
+ *//*========================================================================*/
+ void* mrealloc(void* ptr, size_t size)
+ {
+    void* new = realloc(ptr, size);
+    if (new == NULL)
+        ccerr(F, "unable to allocate memory");
+    return new;
+ }
+
+/*=======================================================================*//**
+ * Generate a temporary file name
+ * \todo error handling
+ *//*========================================================================*/
+char* m_tmpnam()
+{
+    static char name[PATH_MAX * 2 + 1];
+    char cwd[PATH_MAX + 1];
+    name[0] = 0;
+#ifdef _WIN32
+    GetTempPath(PATH_MAX, name);
+    GetCurrentDirectory(PATH_MAX, cwd);
+    SetCurrentDirectory(name);
+    strcat(name, tmpnam(NULL));
+    SetCurrentDirectory(cwd);
+#elif defined(__APPLE__)
+    strcpy(name, tmpnam(NULL));
+#else
+    char* tmp_path = NULL;
+    tmp_path = getenv("TMPDIR");
+    if (!tmp_path)
+        tmp_path = getenv("TMP");
+    if (!tmp_path)
+        tmp_path = getenv("TEMP");
+    if (!tmp_path)
+        tmp_path = getenv("TEMPDIR");
+    if (!tmp_path)
+        tmp_path = "";
+    
+    strcpy(name, tmp_path);
+    getcwd(cwd, PATH_MAX);
+    chdir(tmp_path);
+    strcat(name, tmpnam(NULL));
+    chdir(cwd);
+#endif
+    return name;
+}
+
+/*=======================================================================*//**
+ * Copy the content of a file to another
+ *
+ * \param src: name of the file to be copied
+ * \param dst: name of the file where the content is to be copied
+ *
+ * \return 1 in case of success, 0 otherwise
+ *//*========================================================================*/
+int copy_file(const char* src, const char* dst)
+{
+#ifdef _WIN32
+    return CopyFile(src, dst, FALSE);
+#else
+    size_t nread, nwrite;
+    unsigned char buf[4096];
+    FILE* i = fopen(src, "rb");
+    FILE* o = fopen(dst, "wb");
+
+    if (i == NULL || o == NULL)
+        return 0;
+
+    do
+    {
+        nread = fread(buf, 1, 4096, i);
+        if (nread)
+            nwrite = fwrite(buf, 1, nread, o);
+        else
+            nwrite = 0;
+    } while (nread > 0 && nread == nwrite);
+
+    fclose(i);
+    fclose(o);
+
+    if (nwrite)
+        return 0;
+
+    return 1;
+#endif
+}
