@@ -12,10 +12,13 @@ set(src
 	../common/errors.c
 	../common/files.c
 )
-set(
-    inc
+set(inc
     commons.h
     version.h
+    opcodes.h
+    outfile.h
+    sections.h
+    syms.h
     ${CMAKE_SOURCE_DIR}/common/errors.h
     ${CMAKE_SOURCE_DIR}/common/utils.h
     ${CMAKE_SOURCE_DIR}/common/files.h

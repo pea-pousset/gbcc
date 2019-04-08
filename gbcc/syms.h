@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup syms
+ * \{
+ */
+
 #ifndef SYMS_H
 #define SYMS_H
 
@@ -7,7 +14,8 @@
 typedef struct sym_s
 {
     char id[MAX_ID_LEN + 1];    /**< Identifier name */
-    int  type_id;               /**< BYTE, WORD, TYPENAME... return type in case of a function */
+    int  type_id;               /**< BYTE, WORD, TYPENAME... return type in
+                                 case of a function */
     int  function;
 } sym_t;
 
@@ -42,3 +50,8 @@ void      syms_dec_scope();
 void syms_dump(FILE* f);
 
 #endif
+
+/**
+ * \} syms
+ * \} gbcc
+ */

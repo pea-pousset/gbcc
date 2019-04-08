@@ -1,3 +1,9 @@
+/** \defgroup gbcc gbcc
+ * C compiler
+ * \addtogroup gbcc
+ * \{
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -211,3 +217,5 @@ void on_fatal_error(int from_program)
         exit(EXIT_FAILURE);
     }
 }
+
+/* \} */

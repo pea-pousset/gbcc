@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup Preprocessor
+ * \{
+ */
+
 #ifndef PP_H
 #define PP_H
 
@@ -6,3 +13,8 @@
 int pp(const char* filename, FILE* infile, FILE* outfile);
 
 #endif
+
+/**
+ * \} Preprocessor
+ * \} gbcc
+ */

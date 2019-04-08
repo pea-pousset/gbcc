@@ -1,6 +1,10 @@
 /*========================================================================*//**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup Parser
  * Recursive descent parser
- * \defgroup parser
+ * \addtogroup Parser
+ * \{
  *//*=========================================================================*/
 #include "parser.h"
 
@@ -787,3 +791,8 @@ int function_definition()
     free(s);
     return 0;
 }
+
+/**
+ * \} Parser
+ * \} gbcc
+ */

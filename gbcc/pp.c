@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup Preprocessor
+ * \addtogroup Preprocessor
+ * \{
+ */
+
 #include "pp.h"
 
 #include <stdio.h>
@@ -221,3 +229,8 @@ void process(int linenum)
 {
     
 }
+
+/**
+ * \} Preprocessor
+ * \} gbcc
+ */

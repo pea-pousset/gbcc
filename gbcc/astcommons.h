@@ -1,3 +1,9 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup ast
+ * \{
+ */
 #ifndef ASTCOMMONS_H
 #define ASTCOMMONS_H
 
@@ -34,3 +40,8 @@ typedef struct _node_s
 _node_t* ast_get_tree();
 
 #endif
+
+/**
+ * \} ast
+ * \} gbcc
+ */

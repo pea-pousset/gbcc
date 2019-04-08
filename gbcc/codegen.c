@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup code_generation Code generation
+ * \addtogroup code_generation
+ * \{
+ */
+
 #include "codegen.h"
 #include <stdio.h>
 
@@ -239,3 +247,8 @@ sym_t* gen_lvalue(_node_t* node)
     fprintf(f, "        ld      de, %s\n", node->identifier);
     return s;
 }
+
+/**
+ * \} code_generation
+ * \} gbcc
+ */

@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup ast
+ * \{
+ */
+
 #ifndef AST_H
 #define AST_H
 
@@ -19,3 +26,8 @@ node_t jump(int id, node_t arg);
 void ast_dump(FILE* f);
 
 #endif
+
+/**
+ * \{ ast
+ * \{ gbcc
+ */

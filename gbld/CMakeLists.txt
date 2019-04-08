@@ -11,6 +11,8 @@ set(src
 )
 set(inc
     version.h
+    map.h
+    rom.h
     ../common/errors.h
     ../common/files.h
     ../common/options.h

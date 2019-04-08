@@ -1,3 +1,9 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \addtogroup Errors
+ * \{
+ */
 #ifndef ERRORS_H
 #define ERRORS_H
 
@@ -42,3 +48,9 @@ void err(errtype_t type, const char* message, ...);
 void ccerr(errtype_t type, const char* message, ...);
 
 #endif
+
+/**
+ * \} Errors
+ * \} Commons
+ */
+

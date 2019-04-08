@@ -1,3 +1,10 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \addtogroup Utils
+ * \{
+ */
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -10,3 +17,7 @@ int copy_file(const char* src, const char* dst);
 
 #endif
 
+/**
+ * \} Utils
+ * \} Commons
+ */

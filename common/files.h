@@ -1,3 +1,10 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \addtogroup Files
+ * \{
+ */
+
 #ifndef FILES_H
 #define FILES_H
 
@@ -27,3 +34,8 @@ const char*     file_name();
 int             file_count();
 
 #endif
+
+/**
+ * \} Files
+ * \} Commons
+ */

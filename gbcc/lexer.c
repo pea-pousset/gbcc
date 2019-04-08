@@ -98,6 +98,14 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 ?
  */
 
+/**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup Lexer
+ * \addtogroup Lexer
+ * \{
+ */
+
 #include "lexer.h"
 
 #include <stdio.h>
@@ -773,3 +781,8 @@ void parse_pp_info()
     esetfile(newfile);
     line = newline;
 }
+
+/**
+ * \} Lexer
+ * \} gbcc
+ */

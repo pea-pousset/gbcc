@@ -1,3 +1,10 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \addtogroup Options
+ * \{
+ */
+
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
@@ -37,3 +44,8 @@ option_t* get_option(const char* name);
 char*     gen_options_str(int program);
 
 #endif
+
+/**
+ * \} Options
+ * \} Commons
+ */

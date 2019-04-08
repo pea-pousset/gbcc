@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup syms Symbols table
+ * \addtogroup syms
+ * \{
+ */
+
 #include "syms.h"
 
 #include <stdlib.h>
@@ -248,3 +256,8 @@ void syms_dump(FILE* f)
     syms_dump_e(f, root);
     fprintf(f, ";*******************************************************************************\n\n\n");
 }
+
+/**
+ * \} syms
+ * \} gbcc
+ */

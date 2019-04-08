@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \defgroup ast Abstract Syntax Tree
+ * \addtogroup ast
+ * \{
+ */
+
 #include "ast.h"
 #include "astcommons.h"
 
@@ -278,3 +286,8 @@ void ast_dump_node(FILE* f, _node_t* n, int indent)
             ast_dump_node(f, n->children[i], indent + 1);
     }
 }
+
+/**
+ * \} ast
+ * \} gbcc
+ */

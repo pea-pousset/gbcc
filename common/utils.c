@@ -1,3 +1,11 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \defgroup Utils
+ * \addtogroup Utils
+ * \{
+ */
+
 #include "utils.h"
 
 #include <stdio.h>
@@ -136,3 +144,8 @@ int copy_file(const char* src, const char* dst)
     return 1;
 #endif
 }
+
+/**
+ * \} Utils
+ * \} Commons
+ */

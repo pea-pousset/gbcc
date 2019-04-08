@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup Parser
+ * \{
+ */
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -6,3 +13,8 @@
 int parse(FILE* infile, FILE* outfile);
 
 #endif
+
+/**
+ * \} Parser
+ * \} gbcc
+ */

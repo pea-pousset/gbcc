@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbcc
+ * \{
+ * \addtogroup Lexer
+ * \}
+ */
+
 #ifndef LEXER_H
 #define LEXER_H
 
@@ -47,3 +54,8 @@ void        backtrace();
 void        token_copy(token_t* from, token_t* to);
 
 #endif
+
+/**
+ * \} Lexer
+ * \} gbcc
+ */

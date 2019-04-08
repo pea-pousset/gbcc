@@ -1,3 +1,11 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \defgroup Files
+ * \addtogroup Files
+ * \{
+ */
+ 
 #include "files.h"
 #include "utils.h"
 
@@ -123,3 +131,8 @@ int file_count()
 {
     return count;
 }
+
+/**
+ * \} Files
+ * \} Commons
+ */

@@ -15,7 +15,13 @@ set(src
 	../common/files.c
 )
 set(inc
+    ast.h
     astcommons.h
+    codegen.h
+    lexer.h
+    parser.h
+    pp.h
+    syms.h
     version.h
     ../common/errors.h
     ../common/files.h

@@ -1,3 +1,11 @@
+/**
+ * \addtogroup Commons
+ * \{
+ * \defgroup Options
+ * \addtogroup Options
+ * \}
+ */
+
 #include "options.h"
 
 #include <string.h>
@@ -290,3 +298,8 @@ void read_string(option_t* opt, int* iarg, int argc, char** argv)
     opt->value.str = (char*)mrealloc(opt->value.str, strlen(p) + 1);
     strcpy(opt->value.str, p);
 }
+
+/**
+ * \} Options
+ * \} Commons
+ */
