@@ -49,8 +49,8 @@ typedef struct
 void        lexer_init(FILE* infile);
 token_t*    get_token();
 const char* token_name(int id);
-void        backtrace_prepare();
-void        backtrace();
+void        lexer_backtrace_prepare();
+void        lexer_backtrace();
 void        token_copy(token_t* from, token_t* to);
 
 #endif

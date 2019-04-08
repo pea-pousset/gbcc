@@ -204,6 +204,10 @@ void gen_expr(_node_t* node)
             break;
         }
     }
+    else if (node->type == ASSIGN)
+    {
+        gen_assign(node);
+    }
 }
 
 void gen_assign(_node_t* node)

@@ -21,6 +21,11 @@
 
 static token_t *t;      /**< The current token */
 static int     last_id; /**< Last token type */
+static token_t bt;
+static int     blast_id;
+
+static void    backtrace_prepare();
+static void    backtrace();
 
 static void    next();
 static int     sync(const char* accepted);
@@ -47,7 +52,7 @@ static node_t  logical_and_expression();
 static node_t  logical_or_expression();
 static node_t  conditional_expression();
 static node_t  assignment_expression();
-/* assignment_operator */
+static int     assignment_operator();
 static node_t  expression();
 /* constant_expression */
 
@@ -115,6 +120,19 @@ int parse(FILE* infile, FILE* outfile)
     syms_free();
     return errors() == parse_error;
 }
+
+void backtrace_prepare()
+{
+    lexer_backtrace_prepare();
+    token_copy(t, &bt);
+    blast_id = last_id;
+}
+
+void backtrace()
+{
+    lexer_backtrace();
+    token_copy(&bt, t);
+    last_id = blast_id;}
 
 /*========================================================================*//**
  * Get the next token from the lexer
@@ -395,7 +413,37 @@ node_t conditional_expression()
 
 node_t assignment_expression()
 {
+    node_t n = NULL;
+    backtrace_prepare();
+    
+    if ((n = unary_expression()))
+    {
+        if (assignment_operator())
+        {
+            node_t right = NULL;
+            int op = t->id;
+            next();
+            if ((right = assignment_expression()))
+            {
+                n = binop(op, n, right);
+                return n;
+            }
+            err(E, "expected expression");
+            return NULL;
+        }
+        backtrace();
+    }
+    else
+        backtrace();
+    
     return conditional_expression();
+}
+
+int assignment_operator()
+{
+    if (t->id == '=')
+        return 1;
+    return 0;
 }
 
 node_t expression()
@@ -736,20 +784,13 @@ int jump_statement()
 int function_definition()
 {
     sym_t* s = create_sym();
-    token_t bt;
-    int blast_id;
-
     backtrace_prepare();
-    token_copy(t, &bt);
-    blast_id = last_id;
 
     if (declarator(s))
     {
         if (!s->function)
         {
             backtrace();
-            token_copy(&bt, t);
-            last_id = blast_id;
             free(s);
             return 0;
         }
@@ -769,8 +810,6 @@ int function_definition()
             if (!s->function)
             {
                 backtrace();
-                token_copy(&bt, t);
-                last_id = blast_id;
                 free(s);
                 return 0;
             }
@@ -786,8 +825,6 @@ int function_definition()
     }
 
     backtrace();
-    token_copy(&bt, t);
-    last_id = blast_id;
     free(s);
     return 0;
 }

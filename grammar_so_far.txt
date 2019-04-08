@@ -12,12 +12,14 @@ identifier                = (alpha | "_") {alphanum | "_"} ;
 constant                  = oct_constant | dec_constant | hex_constant ;
 
 unary_operator            = "+" | "-" ;
+assignment_operator       = "=" ;
 
 primary_expression        = identifier | constant | "(" expression ")" ;
 unary_expression          = {unary_operator} primary_expression ;
 multiplicative_expression = unary_expression {("*" | "/" | "%") unary_expression} ;
 additive_expression       = multiplicative_expression {("+" | "-") multiplicative_expression} ;
-expression                = additive_expression ;
+assignment_expression     = additive_expression | unary_expression assignment_operator assignment_expression;
+expression                = assignment_expression
 
 declaration               = type_specifier [init_declarator_list] ";" ;
 direct_declarator         = identifier ["(" ")"] 

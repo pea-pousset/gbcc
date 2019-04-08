@@ -376,7 +376,7 @@ const char* token_name(int id)
     }
 }
 
-void backtrace_prepare()
+void lexer_backtrace_prepare()
 {
     bc = c;
     bl = l;
@@ -386,7 +386,7 @@ void backtrace_prepare()
     bseek = ftell(f);
 }
 
-void backtrace()
+void lexer_backtrace()
 {
     c = bc;
     l = bl;
