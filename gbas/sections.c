@@ -36,13 +36,10 @@ void init_sections()
  *//*=========================================================================*/
 void free_sections()
 {
-    section_t* next;
-    if (!root)
-        return;
-    cur = root;
-    next = cur->next;
+    section_t* next = root;
     while (next)
     {
+        cur = next;
         next = cur->next;
         free(cur);
     }

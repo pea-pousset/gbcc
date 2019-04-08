@@ -15,6 +15,7 @@
 #include "../common/errors.h"
 #include "../common/options.h"
 #include "../common/files.h"
+#include "../common/gbmmap.h"
 #include "commons.h"
 #include "opcodes.h"
 #include "sections.h"
@@ -179,6 +180,9 @@ int main(int argc, char** argv)
         fclose(infile);
         remove(oname);
     }
+    
+    free_sections();
+    free_syms();
 
     if (!errors_encountered && !donot_link)
     {
@@ -224,11 +228,13 @@ void help()
     puts("  -ftabstop=width ");
     puts("  -c              Assemble only, do not link");
     puts("  -o <file>       Place the output into <file>");
+    exit(EXIT_SUCCESS);
 }
 
 void version()
 {
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -241,6 +247,9 @@ void on_fatal_error(int from_program)
 
     if (outfile)
         fclose(outfile);
+    
+    free_sections();
+    free_syms();
 
     if (from_program)
         exit(EXIT_FAILURE);
@@ -754,8 +763,6 @@ void parse_line(int pass)
 
 
 /*========================================================================*//**
- * \todo .byte and .word in ram sections does not need a value and issue
- * a warning
  * \todo handle .ascii
  *//*=========================================================================*/
 void parse_directive(int pass)
@@ -765,19 +772,26 @@ void parse_directive(int pass)
         token_type_t type = tok.type;
         do
         {
+            gbspace_t mspace = get_space(get_current_section()->address);
             get_token();
             if (tok.type != NUM)
             {
                 if (tok.type == EOL)
                 {
-                    if (pass == READ_PASS)
-                        err(W, "undefined value in ROM address space");
+                    if (pass == READ_PASS
+                        && (mspace == rom_0 || mspace == rom_n))
+                            err(W, "undefined value in ROM address space");
                 }
                 else
                 {
-                    err(E, "expected numeric constant");
+                    err(E, "expected numeric constant or nil");
                     return;
                 }
+            }
+            else
+            {
+                if (pass == READ_PASS && mspace != rom_0 && mspace != rom_n)
+                    err(W, "data outside of ROM space");
             }
 
             if (type == _BYTE && (tok.num_val < -128 || tok.num_val > 255))

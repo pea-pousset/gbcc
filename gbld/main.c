@@ -218,7 +218,9 @@ void help()
     puts("Usage: gbld [options] file...");
     puts("Options:");
     puts("  --help      Display this information");
+    puts("  --version   Display linker version information");
     puts("  -o <file>   Place the output into <file>");
+    exit(EXIT_SUCCESS);
 }
 
 
@@ -227,6 +229,7 @@ void help()
 void version()
 {
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+    exit(EXIT_SUCCESS);
 }
 
 

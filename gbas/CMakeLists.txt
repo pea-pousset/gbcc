@@ -11,18 +11,20 @@ set(src
 	../common/options.c
 	../common/errors.c
 	../common/files.c
+	../common/gbmmap.c
 )
 set(inc
-    commons.h
-    version.h
-    opcodes.h
-    outfile.h
-    sections.h
-    syms.h
-    ${CMAKE_SOURCE_DIR}/common/errors.h
-    ${CMAKE_SOURCE_DIR}/common/utils.h
-    ${CMAKE_SOURCE_DIR}/common/files.h
-    ${CMAKE_SOURCE_DIR}/common/options.h
+	commons.h
+	version.h
+	opcodes.h
+	outfile.h
+	sections.h
+	syms.h
+	../common/errors.h
+	../common/utils.h
+	../common/files.h
+	../common/options.h
+	../common/gbmmap.h
 )
 add_executable(gbas ${src} ${inc})
 install(TARGETS gbas DESTINATION bin)

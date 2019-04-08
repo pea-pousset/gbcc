@@ -24,6 +24,7 @@ typedef struct sym_s
 } sym_t;
 
 void init_syms();
+void free_syms();
 sym_t* sym_get_table();
 void sym_declare(int pass, char* id, char* filename, int line, int column); /*
 void sym_set_global(int pass, char* id); */

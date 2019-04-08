@@ -22,17 +22,21 @@ static int num_syms;
 
 void init_syms()
 {
-    cur = root;
-    while (cur)
-    {
-        root = cur;
-        cur = cur->next;
-        free(root);
-    }
+    free_syms();
+    num_syms = 0;
+}
 
+void free_syms()
+{
+    sym_t* next = root;
+    while (next)
+    {
+        cur = next;
+        next = cur->next;
+        free(cur);
+    }
     root = NULL;
     cur = NULL;
-    num_syms = 0;
 }
 
 

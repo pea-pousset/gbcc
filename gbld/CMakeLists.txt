@@ -8,15 +8,17 @@ set(src
 	../common/utils.c
 	../common/errors.c
 	../common/files.c
+	../common/gbmmap.c
 )
 set(inc
-    version.h
-    map.h
-    rom.h
-    ../common/errors.h
-    ../common/files.h
-    ../common/options.h
-    ../common/utils.h  
+	version.h
+	map.h
+	rom.h
+	../common/errors.h
+	../common/files.h
+	../common/options.h
+	../common/utils.h
+	../common/gbmmap.h
 )
 add_executable(gbld ${src} ${inc})
 install(TARGETS gbld DESTINATION bin)
