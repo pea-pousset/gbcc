@@ -6,6 +6,7 @@
 #define LEFTOP  0
 #define RIGHTOP 1
 
+/** Describes a node type */
 enum node_type_e
 {
     STATEMENT_LIST = 1,
@@ -15,20 +16,19 @@ enum node_type_e
     ASSIGN
 };
 
-typedef struct _node_s _node_t;
-struct _node_s
+/** Describes a node of the abstract syntax tree */
+typedef struct _node_s
 {
-    int                 id;             /**< token id */
-    enum node_type_e    type;
-    unsigned int        num_children;   /**< number of child nodes */
-    _node_t*            parent;
-    _node_t**           children;
-
-    /** Contains the value of a constant or the scope ID of a
-    block node */
-    int     num_value;
-    char    identifier[MAX_ID_LEN + 1];
-};
+    int                 id;             /**< Token id */
+    enum node_type_e    type;           /**< Node type */
+    unsigned int        num_children;   /**< Number of child nodes */
+    struct _node_s*     parent;         /**< Parent node */
+    struct _node_s**    children;       /**< Child nodes */
+    int     num_value;                  /**< Contains the value of a constant
+                                         or the scope ID of a block node */
+    char    identifier[MAX_ID_LEN + 1]; /**< Contains a null-terminated
+                                         indentifier string */
+} _node_t;
 
 
 _node_t* ast_get_tree();

@@ -32,8 +32,8 @@ typedef struct
 
 extern option_t options[NUM_OPTIONS];
 
-void parse_options(int argc, char** argv, int program, void(*help)(), void(*version)());
+void      parse_options(int argc, char** argv, int program, void(*help)(), void(*version)());
 option_t* get_option(const char* name);
-char* gen_options_str(int program);
+char*     gen_options_str(int program);
 
 #endif

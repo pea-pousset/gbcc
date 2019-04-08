@@ -26,7 +26,9 @@ void write_int8(char val)
 }
 
 /*========================================================================*//**
- * Write a 32 bits big-endian value to the output file
+ * Writes a 32 bits big-endian value to the output file
+ *
+ * \param val: The value to write
  * \todo error handling
  *//*=========================================================================*/
 void write_int32(int val)
@@ -40,7 +42,9 @@ void write_int32(int val)
 }
 
 /*========================================================================*//**
- * Write a 16 bits big-endian value to the output file
+ * Writes a 16 bits big-endian value to the output file
+ *
+ * \param val: The value to write
  * \todo error handling
  *//*=========================================================================*/
 void write_int16(int val)

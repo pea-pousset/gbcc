@@ -1,6 +1,7 @@
 #ifndef FILES_H
 #define FILES_H
 
+/**< Describes a source file type */
 typedef enum
 {
     C,      /**< c source file, .c extension required */

@@ -45,7 +45,8 @@ static void read_string(option_t* opt, int* iarg, int argc, char** argv);
  * \param help: Pointer to a function displaying the help message
  * \param version: Pointer to a function displaying the version message
  *//*=========================================================================*/
-void parse_options(int argc, char** argv, int program, void(*help)(), void(*version)())
+void parse_options(int argc, char** argv, int program, void(*help)(),
+                   void(*version)())
 {
     int i;
     option_t* opt;

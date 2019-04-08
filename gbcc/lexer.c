@@ -109,22 +109,22 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 #include "../common/options.h"
 #include "../common/errors.h"
 
-static FILE* f;
-static int      c;       /**< current character */
-static int      l;       /**< look-ahead character */
-static int      prev;    /**< previous character id*/
-static unsigned line;    /**< current line number in source file */
-static unsigned column;  /**< current column number in source file */
+static FILE* f;          /**< Current file */
+static int      c;       /**< Current character */
+static int      l;       /**< Look-ahead character */
+static int      prev;    /**< Previous character */
+static unsigned line;    /**< Current line number in the source file */
+static unsigned column;  /**< Current column number in the source file */
 
-static int      bc;      /**< current character backup */
-static int      bl;
-static int      bprev;
-static unsigned bline;
-static unsigned bcolumn;
-static unsigned bseek;
+static int      bc;      /**< Current character backup */
+static int      bl;      /**< Current look-ahead character backup */
+static int      bprev;   /**< Previous character backup */
+static unsigned bline;   /**< Current line number backup */
+static unsigned bcolumn; /**< Current column backup */
+static unsigned bseek;   /**< */
 static int      tabstop; /**< Width of the tab character */
 
-static token_t t;        /* current token */
+static token_t t;        /**< Current token */
 
 static void  readbyte();
 static int   get_digit(int base);
@@ -133,7 +133,7 @@ static char* pp_get_token();
 static void  parse_pp_info();
 
 /*========================================================================*//**
- * Initialize the lexer for a new file
+ * Initializes the lexer for a new file
  *//*=========================================================================*/
 void lexer_init(FILE* infile)
 {

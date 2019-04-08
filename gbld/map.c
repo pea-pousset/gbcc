@@ -14,7 +14,7 @@ typedef struct sectlist_s
 sectlist_t* linked = NULL;
 sectlist_t* unlinked = NULL;
 
-static int overlap(section_t* t1, section_t* t2);
+static int  overlap(section_t* t1, section_t* t2);
 static void add_to_list(section_t* sect, sectlist_t** list);
 static void remove_from_list(section_t* sect, sectlist_t** list);
 

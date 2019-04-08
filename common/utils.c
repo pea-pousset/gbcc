@@ -25,9 +25,13 @@
 #include "errors.h"
 
 
-/*=======================================================================*//**
- * Like malloc(), but throws a fatal error in case of failure
- *//*========================================================================*/
+/*========================================================================*//**
+ * Allocates a block of memory or throws a fatal error in case of failure
+ *
+ * \param size: Size of the memory block to allocate
+ * \return NULL in case of failure, a pointer to the memory block allocated
+ * otherwise
+ *//*=========================================================================*/
  void* mmalloc(size_t size)
  {
     void* new = malloc(size);
@@ -36,9 +40,15 @@
     return new;
  }
 
- /*=======================================================================*//**
- * Like realloc(), but throws a fatal error in case of failure
- *//*========================================================================*/
+/*========================================================================*//**
+ * Changes the size of a memory block or throws a fatal error in case of
+ * failure
+ *
+ * \param ptr: Pointer to the memory block to resize
+ * \param size: New size for the memory block
+ * \return NULL in case of failure, a pointer to the memory block allocated
+ * otherwise
+ *//*=========================================================================*/
  void* mrealloc(void* ptr, size_t size)
  {
     void* new = realloc(ptr, size);
@@ -47,10 +57,12 @@
     return new;
  }
 
-/*=======================================================================*//**
- * Generate a temporary file name
+/*========================================================================*//**
+ * Generates a temporary file name
+ *
+ * \return A temporary file name and path
  * \todo error handling
- *//*========================================================================*/
+ *//*=========================================================================*/
 char* m_tmpnam()
 {
     static char name[PATH_MAX * 2 + 1];
@@ -86,7 +98,7 @@ char* m_tmpnam()
 }
 
 /*=======================================================================*//**
- * Copy the content of a file to another
+ * Copies the content of a file to another
  *
  * \param src: name of the file to be copied
  * \param dst: name of the file where the content is to be copied

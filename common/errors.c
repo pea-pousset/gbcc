@@ -1,3 +1,7 @@
+/*========================================================================*//**
+ * \defgroup Errors
+ *//*=========================================================================*/
+
 #include "errors.h"
 
 #include <stdio.h>
@@ -35,6 +39,8 @@ static void verr(errtype_t type, const char* message, va_list args, int prgm);
 
 /**=======================================================================*//**
  * Set the program name to display in further error messages
+ *
+ * \param name: the name to display
  *//*=========================================================================*/
 void esetprogram(const char* const name)
 {
@@ -43,6 +49,8 @@ void esetprogram(const char* const name)
 
 /**=======================================================================*//**
  * Set the function to call in case of fatal error
+ *
+ * \param func: The function to call
  *//*=========================================================================*/
 void esetonfatal(void(*func)())
 {
@@ -51,6 +59,8 @@ void esetonfatal(void(*func)())
 
 /**=======================================================================*//**
  * Set the file name to display in further error messages
+ *
+ * \param name: The file name to display
  *//*=========================================================================*/
 void esetfile(const char* name)
 {

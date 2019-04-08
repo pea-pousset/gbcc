@@ -11,24 +11,27 @@
 
 static const char* filnam; /* to be changed for an include stack */
 
-static FILE* f;
-static int c;
-static int l;
-static char linebuf[BUFSIZE];   /* current line buffer */
-static int  mlc;                /* multi line comment */
-static int line;
-static int column;
-static int update_line;         /* output a " # line-num file" when set */ 
-static int tabstop;
+static FILE* f;                 /**< CUrrent file */
+static int   c;                 /**< Current character */
+static int   l;                 /**< Look-ahead character */
+static char  linebuf[BUFSIZE];  /**< Current line buffer */
+static int   mlc;               /**< Multi line comment flag */
+static int   line;              /**< Current line number */
+static int   column;            /**< Current column number */
+static int   update_line;       /**< Output a " # line-num file" when set to
+                                 non-zero */
+static int   tabstop;           /**< Width of a tab character */
 
 static void readbyte();
 static int  readline();
 static void process();
 
-/**
+/*========================================================================*//**
+ * Preprocess a C source file
+ *
  * \param infile: source file in binary read mode
  * \param outfile: output preprocessed source file in binary write mode
- */
+ *//*=========================================================================*/
 int pp(const char* filename, FILE* infile, FILE* outfile)
 {
     unsigned char bom1, bom2, bom3;
@@ -81,12 +84,21 @@ int pp(const char* filename, FILE* infile, FILE* outfile)
     return 1;
 }
 
+/*========================================================================*//**
+ * Reads the next character in the source file
+ *//*=========================================================================*/
 void readbyte()
 {
     c = l;
     l = fgetc(f);
 }
 
+/*========================================================================*//**
+ * Reads a line in the source file, process it and place the result into a
+ * buffer
+ *
+ * \param pl: Pointer the buffer
+ *//*=========================================================================*/
 int readline(char* pl)
 {
     if (c == EOF)
@@ -177,7 +189,7 @@ int readline(char* pl)
         return 1;
     }
     
-    /* search last non white character */
+    /* search for the last non white character of the line */
     while (*pl)
         ++pl;
     --pl;

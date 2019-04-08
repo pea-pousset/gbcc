@@ -4,15 +4,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-typedef struct file_entry_s file_entry_t;
-struct file_entry_s
+typedef struct file_entry_s
 {
-    sourcefile_t  file;
-    file_entry_t* next;
-};
+    sourcefile_t         file;
+    struct file_entry_s* next;
+} file_entry_t;
 
 static int count = 0;
-static file_entry_t root = { {NULL, 0, 0}, NULL };
+static file_entry_t  root = { {NULL, 0, 0}, NULL };
 static file_entry_t* cur = &root;
 
 /*========================================================================*//**
@@ -31,6 +30,7 @@ void file_add(const char* name)
     strcpy(nf->file.name, name);
     p = nf->file.name;
 
+    /* Find the file's type using its extension */
     while (*p)
         ++p;
     while (*p != '.' && p != nf->file.name)
@@ -60,7 +60,7 @@ void file_first()
 
 
 /*========================================================================*//**
- * Change the current file attributes and modify its extension if necessary
+ * Change the current file's attributes and modify its extension if necessary
  *
  * \param type: the new file type
  * \param tmp: non-zero marks the file as a temporary file
@@ -77,7 +77,8 @@ void file_set_attr(filetype_t type, int tmp)
     if (*p == '.')
         *p = 0;
 
-    cur->file.name = (char*)mrealloc(cur->file.name, strlen(cur->file.name) + 3);
+    cur->file.name = (char*)mrealloc(cur->file.name,
+                                     strlen(cur->file.name) + 3);
 
     p = cur->file.name;
     while (*p != 0)
@@ -104,13 +105,20 @@ sourcefile_t* file_next()
 
 
 /*========================================================================*//**
- * Return the current file name
+ * Return the current file's name
+ *
+ * \return The current file's name
  *//*=========================================================================*/
 const char* file_name()
 {
     return cur->file.name;
 }
 
+/*========================================================================*//**
+ * Return the current file's name
+ *
+ * \return The current file's name
+ *//*=========================================================================*/
 int file_count()
 {
     return count;

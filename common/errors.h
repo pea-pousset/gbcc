@@ -22,8 +22,8 @@ typedef enum
     F   /**< fatal, force the program to exit */
 } errtype_t;
 
-extern int eline;     /**< line to display in an error message */
-extern int ecolumn;   /**< column to display in an error message */
+extern int eline;     /**< Line to display in an error message */
+extern int ecolumn;   /**< Column to display in an error message */
 
 extern const char* const notestr;
 extern const char* const warnstr;
@@ -33,9 +33,9 @@ extern const char* const ferrstr;
 void esetprogram(const char* const name);
 void esetonfatal(void (*func)(int));
 void esetfile(const char* name);
-int errors();
-int warnings();
-int fatal();
+int  errors();
+int  warnings();
+int  fatal();
 void clear_errors();
 void clear_fatal();
 void err(errtype_t type, const char* message, ...);

@@ -44,7 +44,9 @@ void ast_free()
 }
 
 /*========================================================================*//**
- * Return the whole abstract syntax tree
+ * Returns the whole abstract syntax tree
+ *
+ * \return Root of the AST
  *//*=========================================================================*/
 _node_t* ast_get_tree()
 {
@@ -52,7 +54,9 @@ _node_t* ast_get_tree()
 }
 
 /*========================================================================*//**
- * Add a node to the abstract syntax tree
+ * Adds a child node to the abstract syntax tree to the current node
+ *
+ * \param n: The node to add
  *//*=========================================================================*/
 void ast_add_node(node_t n)
 {
@@ -60,7 +64,9 @@ void ast_add_node(node_t n)
 }
 
 /*========================================================================*//**
- * Increase the current scope by adding a statement block node
+ * Increases the current scope by adding a statement block node
+ *
+ * \param scopde_id: The new scope id
  *//*=========================================================================*/
 void ast_inc_scope(int scope_id)
 {
@@ -72,7 +78,7 @@ void ast_inc_scope(int scope_id)
 }
 
 /*========================================================================*//**
- * Decrease the current scope
+ * Decreases the current scope
  *//*=========================================================================*/
 void ast_dec_scope()
 {
@@ -80,6 +86,11 @@ void ast_dec_scope()
         node = node->parent;
 }
 
+/*========================================================================*//**
+ * Creates a new 'function' node
+ *
+ * \param name: The function's name
+ *//*=========================================================================*/
 node_t function(const char* name)
 {
     _node_t* new = create_node();
@@ -89,7 +100,8 @@ node_t function(const char* name)
 }
 
 /*========================================================================*//**
- * Create a node for a numeric constant
+ * Creates a new node containing a numeric constant
+ *
  * \param value: constant value
  *//*=========================================================================*/
 node_t constant(int value)
@@ -101,7 +113,8 @@ node_t constant(int value)
 }
 
 /*========================================================================*//**
- * Create a node for an identifier
+ * Creates a new 'identifier' node
+ *
  * \param name: identifier string
  *//*=========================================================================*/
 node_t identifier(const char* name)
@@ -112,6 +125,12 @@ node_t identifier(const char* name)
     return (node_t)new;
 }
 
+/*========================================================================*//**
+ * Creates a new 'unary operator' node
+ *
+ * \param id: Token id
+ * \param right: rvalue
+ *//*=========================================================================*/
 node_t unop(int id, node_t right)
 {
     _node_t* new = create_node();
@@ -126,6 +145,13 @@ node_t unop(int id, node_t right)
     return (node_t)new;
 }
 
+/*========================================================================*//**
+ * Creates a new 'binary operator' node
+ *
+ * \param id: Token id
+ * \param left: lvalue
+ * \param right: rvalue
+ *//*=========================================================================*/
 node_t binop(int id, node_t left, node_t right)
 {
     _node_t* new = create_node();
@@ -140,7 +166,7 @@ node_t binop(int id, node_t left, node_t right)
 }
 
 /*========================================================================*//**
- * Create a node for a jump statement. 'arg' can be NULL, an
+ * Creates a new 'jump statement'. 'arg' can be NULL, an
  * expression for 'return' or an identifier for 'goto'.
  *//*=========================================================================*/
 node_t jump(int id, node_t arg)
