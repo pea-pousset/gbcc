@@ -16,33 +16,55 @@
 #include "opcodes.h"
 #include "outfile.h"
 
-static section_t* root;
-static section_t* cur;
+static section_t* root = NULL;  /**< Root of the sections list */
+static section_t* cur;          /**< Current section */
 static int num_sections;
 
 static void write_section_header();
 
+/*========================================================================*//**
+ * Init the sections list
+ *//*=========================================================================*/
 void init_sections()
 {
-    cur = root;
-    while (cur)
-    {
-        root = cur;
-        cur = cur->next;
-        free(root);
-    }
-
-    root = NULL;
-    cur = NULL;
+    free_sections();
     num_sections = 0;
 }
 
+/*========================================================================*//**
+ * Free the sections list
+ *//*=========================================================================*/
+void free_sections()
+{
+    section_t* next;
+    if (!root)
+        return;
+    cur = root;
+    next = cur->next;
+    while (next)
+    {
+        next = cur->next;
+        free(cur);
+    }
+    root = NULL;
+    cur = NULL;
+}
+
+/*========================================================================*//**
+ * Return the current section
+ *//*=========================================================================*/
 section_t* get_current_section()
 {
     return cur;
 }
 
-section_t* get_section_id(int id)
+/*========================================================================*//**
+ * Find a section by id
+ *
+ * \param id: id of the section to find
+ * \return a pointer to the section if it has been found, NULL otherwise
+ *//*=========================================================================*/
+section_t* get_section_by_id(int id)
 {
     section_t* ps = root;
     while (ps)
@@ -54,8 +76,16 @@ section_t* get_section_id(int id)
     return ps;
 }
 
-int add_section(int pass, section_type_t type, int address)
+/*========================================================================*//**
+ * Create a new section and set it as the current section
+ *
+ * \param pass: assembly pass
+ * \param type: the new section's type
+ * \param address: the new section's address
+ *//*=========================================================================*/
+void add_section(int pass, section_type_t type, int address)
 {
+    /* PASS 1 : Create a new section */
     if (pass == READ_PASS)
     {
         section_t* new = (section_t*)malloc(sizeof(section_t));
@@ -66,7 +96,6 @@ int add_section(int pass, section_type_t type, int address)
         {
             root = new;
             cur = root;
-
         }
         else
         {
@@ -82,7 +111,7 @@ int add_section(int pass, section_type_t type, int address)
         cur->next = NULL;
         ++num_sections;
     }
-    else
+    else /* PASS 2 : write the section header to the object file */
     {
         if (cur->next == NULL)
         {
@@ -96,44 +125,43 @@ int add_section(int pass, section_type_t type, int address)
 
         write_section_header();
     }
-
-    return 1;
 }
 
-int add_opcode(int pass, int iopcode, int val)
+/*========================================================================*//**
+ * Add an opcode to the current section
+ *
+ * \param pass: assembly pass
+ * \param iopcode: index of the opcode in opcodes
+ * \param val: the opcode argument
+ *//*=========================================================================*/
+void add_opcode(int pass, int iopcode, int val)
 {
     if (root == NULL)
         err(F, "code generation before a section has been created");
 
     if (opcodes[iopcode].pre)
-    {
-        if (!add_data(pass, opcodes[iopcode].pre))
-            return 0;
-    }
-
-    if (!add_data(pass, opcodes[iopcode].oc))
-        return 0;
+        add_data(pass, opcodes[iopcode].pre);
+    add_data(pass, opcodes[iopcode].oc);
 
     if (!opcodes[iopcode].pre && opcodes[iopcode].len > 1)
     {
         if (opcodes[iopcode].len == 2)
-        {
-            if (!add_data(pass, val & 0xFF))
-                return 0;
-        }
+            add_data(pass, val & 0xFF);
         else
         {
-            if (!add_data(pass, val & 0xFF))
-                return 0;
-            if (!add_data(pass, (val >> 8) & 0xFF))
-                return 0;
+            add_data(pass, val & 0xFF);
+            add_data(pass, (val >> 8) & 0xFF);
         }
     }
-
-    return 1;
 }
 
-int add_data(int pass, char c)
+/*========================================================================*//**
+ * Add 1 byte of data to the current section
+ *
+ * \param pass: assembly pass
+ * \param c: byte value to add
+ *//*=========================================================================*/
+void add_data(int pass, char c)
 {
     if (root == NULL)
         err(F, "code generation before a section has been created");
@@ -142,17 +170,18 @@ int add_data(int pass, char c)
     {
         cur->pc++;
         cur->datasize++;
-        return 1;
     }
-
-    write_int8(c);
-    cur->pc++;
-
-    return 1;
+    else
+    {
+        write_int8(c);
+        cur->pc++;
+    }
 }
 
 
-
+/*========================================================================*//**
+ * Write the current section header to the object file
+ *//*=========================================================================*/
 void write_section_header()
 {
     write_int32(cur->id);

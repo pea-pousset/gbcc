@@ -17,7 +17,7 @@
 #include "outfile.h"
 
 static sym_t* root = NULL;
-static sym_t* cur = NULL;
+static sym_t* cur = NULL;   /**< Current symbol */
 static int num_syms;
 
 void init_syms()
@@ -34,6 +34,7 @@ void init_syms()
     cur = NULL;
     num_syms = 0;
 }
+
 
 void sym_declare(int pass, char* id, char* filename, int line, int column)
 {
@@ -94,6 +95,9 @@ void sym_declare(int pass, char* id, char* filename, int line, int column)
     ++num_syms;
 }
 
+/**
+ * \todo handle symbol relocation
+ */
 int sym_request(int pass, char* id, int relative)
 {
     sym_t* psym;
@@ -153,7 +157,7 @@ int sym_request(int pass, char* id, int relative)
     }
 
 
-    targetsect = get_section_id(psym->section_id);
+    targetsect = get_section_by_id(psym->section_id);
     if (targetsect->type == org)
         return targetsect->address + psym->offset;
 

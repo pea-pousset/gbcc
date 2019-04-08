@@ -278,6 +278,7 @@ int get_line()
 
 
 /*========================================================================*//**
+ * Read a new token and place it in tok
  * \todo Allow indentifiers starting with a '.' to implement sublabels
  *//*=========================================================================*/
 void get_token()
@@ -755,6 +756,7 @@ void parse_line(int pass)
 /*========================================================================*//**
  * \todo .byte and .word in ram sections does not need a value and issue
  * a warning
+ * \todo handle .ascii
  *//*=========================================================================*/
 void parse_directive(int pass)
 {
@@ -789,13 +791,9 @@ void parse_directive(int pass)
                 return;
             }
 
-            if (!add_data(pass, (tok.num_val & 0xFF)))
-                return;
+            add_data(pass, (tok.num_val & 0xFF));
             if (type == _WORD)
-            {
-                if (!add_data(pass, ((tok.num_val & 0xFF00) >> 8)))
-                    return;
-            }
+                add_data(pass, ((tok.num_val & 0xFF00) >> 8));
 
             if (tok.type != EOL)
                 get_token();
