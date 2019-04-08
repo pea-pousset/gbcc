@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \defgroup outfile Output file
+ * \addtogroup outfile
+ * \{
+ */
+
 #include "outfile.h"
 
 static FILE* f;
@@ -60,3 +68,7 @@ void write_data(char* data, size_t size)
     fwrite(data, 1, size, f);
 }
 
+/**
+ * \} outfile
+ * \} gbas
+ */

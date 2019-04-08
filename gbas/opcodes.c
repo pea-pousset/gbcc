@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \defgroup Opcodes
+ * \addtogroup Opcodes
+ * \{
+ */
+
 #include "opcodes.h"
 
 const char* keywords[NUM_KEYWORDS] =
@@ -666,5 +674,8 @@ const opcode_t opcodes[NUM_OPCODES] =
     { "XOR  [ HL ]          ",    0, 0xAE, 1 }
 };
 
-
+/**
+ * \} Opcodes
+ * \} gbas
+ */
 

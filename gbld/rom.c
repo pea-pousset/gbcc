@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbld
+ * \{
+ * \defgroup ROM
+ * \addtogroup ROM
+ * \{
+ */
+
 #include "rom.h"
 
 #include <stdlib.h>
@@ -45,3 +53,8 @@ char* get_rom_bank(int bank)
     }
     return NULL;
 }
+
+/**
+ * \} ROM
+ * \} gbld
+ */

@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \defgroup Sections
+ * \addtogroup Sections
+ * \{
+ */
+
 #include "sections.h"
 
 #include <stdio.h>
@@ -153,3 +161,7 @@ void write_section_header()
     write_int32(cur->datasize);
 }
 
+/**
+ * \} Sections
+ * \} gbas
+ */

@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \defgroup Symbols
+ * \addtogroup Symbols
+ * \{
+ */
+
 #include "syms.h"
 
 #include <stdlib.h>
@@ -171,3 +179,8 @@ void write_syms()
         cur = cur->next;
     }
 }
+
+/**
+ * \} Symbols
+ * \} gbas
+ */

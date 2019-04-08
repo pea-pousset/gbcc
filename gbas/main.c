@@ -1,3 +1,10 @@
+/**
+ * \defgroup gbas gbas
+ * 2 pass assembler
+ * \addtogroup gbas
+ * \{
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -851,8 +858,6 @@ int compare(const char* str1, const char* str2)
 /*========================================================================*//**
  * Reduce the range of candidate opcodes given the current bounds
  *
- * \todo better help message
- *
  * \param lb: lower bound index in the opcode table
  * \param ub: upper bound index in the opcode table
  * \param col: column of the character to examine in an opcode
@@ -880,3 +885,7 @@ int filter(int *lb, int *ub, int col, char c)
 
     return 1;
 }
+
+/**
+ * \} gbas
+ */

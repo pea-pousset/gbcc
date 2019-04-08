@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \addtogroup Sections
+ * \{
+ */
+
 #ifndef SECTIONS_H
 #define SECTIONS_H
 
@@ -27,3 +34,8 @@ int  add_opcode(int pass, int iopcode, int val);
 int  add_data(int pass, char c);
 
 #endif
+
+/**
+ * \} Sections
+ * \} gbas
+ */

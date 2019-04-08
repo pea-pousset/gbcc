@@ -1,3 +1,11 @@
+/**
+ * \addtogroup gbld
+ * \{
+ * \defgroup Map
+ * \addtogroup Map
+ * \{
+ */
+
 #include "map.h"
 
 #include "../common/utils.h"
@@ -121,3 +129,8 @@ int overlap(section_t* t1, section_t* t2)
 
     return 0;
 }
+
+/**
+ * \} Map
+ * \} gbld
+ */

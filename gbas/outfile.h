@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \addtogroup outfile
+ * \{
+ */
+
 #ifndef OUTFILE_H
 #define OUTFILE_H
 
@@ -18,3 +25,8 @@ void write_int32(int val);
 void write_data(char* data, size_t size);
 
 #endif
+
+/**
+ * \outfile
+ * \gbas
+ */

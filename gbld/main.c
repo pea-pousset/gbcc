@@ -1,3 +1,10 @@
+/**
+ * \defgroup gbld gbld
+ * Linker
+ * \addtogroup gbld
+ * \{
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -272,3 +279,7 @@ void read_data(char* dest, size_t size)
     if (fread(dest, 1, size, infile) < size)
         err(F, "invalid oject file");
 }
+
+/**
+ * \}
+ */

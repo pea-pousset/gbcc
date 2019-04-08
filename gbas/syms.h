@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \addtogroup Symbols
+ * \{
+ */
+
 #ifndef SYMS_H
 #define SYMS_H
 
@@ -25,3 +32,8 @@ void sym_request_rel(int pass, char* id); */
 void write_syms();
 
 #endif
+
+/**
+ * \} Symbols
+ * \} gbas
+ */

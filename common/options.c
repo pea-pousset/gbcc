@@ -147,7 +147,8 @@ void parse_options(int argc, char** argv, int program, void(*help)(),
         if (file_count() > 1)
         {
             if (program == GBCC)
-                ccerr(F, "cannot specify -o with -E, -S or -c with multiple files");
+                ccerr(F, "cannot specify -o with -E, -S or -c with multiple "
+                         "files");
             else
                 ccerr(F, "cannot specify -o with -c with multiple files");
 

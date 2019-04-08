@@ -1,3 +1,10 @@
+/**
+ * \addtogroup gbas
+ * \{
+ * \addtogroup Opcodes
+ * \{
+ */
+
 #ifndef OPCODES_H
 #define OPCODES_H
 
@@ -24,17 +31,20 @@
 /**
  * Entry for an instruction in the lookup table
  */
-struct opcode_s
+typedef struct opcode_s
 {
     const char* str;    /**< Mnemonic string */
     int         pre;    /**< 0xCB prefix */
     int         oc;     /**< Machine opcode */
     int         len;    /**< Length of the machine opcode, prefix included */
-};
-
-typedef struct opcode_s opcode_t;
+} opcode_t;
 
 extern const char* keywords[NUM_KEYWORDS];
 extern const opcode_t opcodes[NUM_OPCODES];
 
 #endif
+
+/**
+ * \} Opcodes
+ * \} gbas
+ */
