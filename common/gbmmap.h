@@ -5,9 +5,9 @@ typedef enum {
     rom_0,
     rom_n,
     vram,
-    extram_n,
-    ram_0,
-    ram_n,
+    ram,
+    wram_0,
+    wram_n,
     echo,
     oam,
     unusable,
@@ -18,6 +18,7 @@ typedef enum {
 } gbspace_t;
 
 gbspace_t get_space(unsigned address);
+unsigned  get_map_section_size(gbspace_t sect);
 
 #endif
 

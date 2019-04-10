@@ -791,7 +791,7 @@ void parse_directive(int pass)
             else
             {
                 if (pass == READ_PASS && mspace != rom_0 && mspace != rom_n)
-                    err(W, "data outside of ROM space");
+                    err(W, "writing data outside of ROM space has no effect");
             }
 
             if (type == _BYTE && (tok.num_val < -128 || tok.num_val > 255))
