@@ -194,16 +194,18 @@ void help()
     puts("Options:");
     puts("  --help           Display this information.");
     puts("  --version        Display compiler version information.");
-    puts("  -ftabstop=width  ");
+    puts("  -ftabstop=width  Set the distance between tab stops");
     puts("  -E               Preprocess only; do not compile, assemble or link.");
     puts("  -S               Compile only; do not assemble or link.");
     puts("  -c               Compile and assemble, but do not link.");
     puts("  -o <file>        Place the output into <file>.");
+    exit(EXIT_SUCCESS);
 }
 
 void version()
 {
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+    exit(EXIT_SUCCESS);
 }
 
 void on_fatal_error(int from_program)

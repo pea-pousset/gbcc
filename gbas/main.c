@@ -225,7 +225,7 @@ void help()
     puts("Options:");
     puts("  --help          Display this information");
     puts("  --version       Display assembler version information");
-    puts("  -ftabstop=width ");
+    puts("  -ftabstop=width Set the distance between tab stops");
     puts("  -c              Assemble only, do not link");
     puts("  -o <file>       Place the output into <file>");
     exit(EXIT_SUCCESS);
