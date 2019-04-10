@@ -105,7 +105,7 @@ int parse(FILE* infile, FILE* outfile)
 
             if (t->id == '{')
             {
-                if (!sync("}"))
+                if (sync("}"))
                     next();
             }
             else
@@ -115,7 +115,11 @@ int parse(FILE* infile, FILE* outfile)
 
     syms_dump(outfile);
     ast_dump(outfile);
-    codegen(outfile);
+#ifdef NDEBUG
+    if (errors() == parse_error)
+#endif
+        codegen(outfile);
+    
     ast_free();
     syms_free();
     return errors() == parse_error;
@@ -132,7 +136,8 @@ void backtrace()
 {
     lexer_backtrace();
     token_copy(&bt, t);
-    last_id = blast_id;}
+    last_id = blast_id;
+}
 
 /*========================================================================*//**
  * Get the next token from the lexer
@@ -176,12 +181,7 @@ int sync(const char* accepted)
 #ifndef NDEBUG
     printf("\tResult: %s found at %d:%d\n", token_name(t->id), t->line, t->column);
 #endif
-    if (t->id != EOF)
-    {
-        next();
-        return 1;
-    }
-    return 0;
+    return *p == t->id;
 }
 
 /*========================================================================*//**
@@ -204,9 +204,11 @@ int accept(int id)
  *//*=========================================================================*/
 int expect(int id)
 {
+    char buf[16];
     if (accept(id))
         return 1;
-    err(E, "expected %s after %s", token_name(id), token_name(last_id));
+    strcpy(buf, token_name(id));
+    err(E, "expected %s after %s", buf, token_name(last_id));
     return 0;
 }
 
@@ -289,7 +291,7 @@ node_t unary_expression()
         next();
         if (!(right = cast_expression()))
         {
-            err(E, "expected expression after %s", token_name(last_id));
+            err(E, "expected expression after %s", token_name(op));
             return NULL;
         }
 
@@ -331,7 +333,7 @@ node_t multiplicative_expression()
             next();
             if (!(right = cast_expression()))
             {
-                err(E, "expected expression after %s ", token_name(last_id));
+                err(E, "expected expression after %s ", token_name(op));
                 return NULL;
             }
 
@@ -355,7 +357,7 @@ node_t additive_expression()
 
             if (!(right = multiplicative_expression()))
             {
-                err(E, "expected expression after %s", token_name(t->id));
+                err(E, "expected expression after %s", token_name(op));
                 return NULL;
             }
             n = binop(op, n, right);
@@ -428,7 +430,8 @@ node_t assignment_expression()
                 n = binop(op, n, right);
                 return n;
             }
-            err(E, "expected expression");
+            err(E, "expected expression after %s", token_name(op));
+            sync(";");
             return NULL;
         }
         backtrace();
@@ -748,9 +751,8 @@ int statement_list()
 int expression_statement()
 {
     node_t n;
-    if (accept(';'))
-        return 1;
-    else if ((n = expression()))
+
+    if ((n = expression()))
     {
         if (expect(';'))
         {
@@ -760,6 +762,9 @@ int expression_statement()
         else
             return sync(";");
     }
+    else if (accept(';'))
+        return 1;
+    
     return 0;
 }
 

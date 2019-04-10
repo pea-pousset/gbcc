@@ -119,8 +119,11 @@ void clear_fatal()
 void err(errtype_t type, const char* message, ...)
 {
     va_list args;
-    /* if (eline == last_line && ecolumn == last_col && (int)type <= last_lvl)
-        return; */
+#ifdef NDEBUG
+    /* The recursive parser can generate a new error at each recursion level */
+    if (eline == last_line && ecolumn == last_col && (int)type <= last_lvl)
+        return;
+#endif
 
 
     fprintf(stderr, "%s:%d:%d: ", efile, eline, ecolumn);
