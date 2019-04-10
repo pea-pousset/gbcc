@@ -3,13 +3,10 @@
 Gameboy linker
 
 ## Usage
+```
+gbld [options] file...
 
-### Usage
-
-gld [options] file...
-
-### Options
-
---help
---version
--o <file>
+--help      Display help information
+--version   Display version information
+-o <file>   Place the output into <file>
+```
