@@ -26,7 +26,7 @@ direct_declarator         = identifier ["(" ")"]
 init_declarator_list      = init_declarator {"," init_declarator} ;
 init_declarator           = direct_declarator ["=" additive_expression] ;
 
-type_specfier             = "byte" | "word" ;  
+type_specifier             = "byte" | "word" | "void";  
 
 statement                 = compound_statement | expression_statement ;
 compound_statement        = "{" {declaration} {statement} "}" ; 
