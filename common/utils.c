@@ -74,7 +74,9 @@
 char* m_tmpnam()
 {
     static char name[PATH_MAX * 2 + 1];
+#if !defined(_WIN32) && !defined(__APPLE__)
     char cwd[PATH_MAX + 1];
+#endif
     name[0] = 0;
 #ifdef _WIN32
     GetTempPath(PATH_MAX, name);
