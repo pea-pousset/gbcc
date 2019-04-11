@@ -8,6 +8,7 @@
 #ifndef ROM_H
 #define ROM_H
 
+#define MAX_ROM_BANKS   512
 #define BANK_SIZE       0x4000
 
 void  init_rom();

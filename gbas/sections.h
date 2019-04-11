@@ -9,12 +9,7 @@
 #define SECTIONS_H
 
 #include <stdio.h>
-
-/** Describes a section type */
-typedef enum
-{
-    org             /**< Fixed origin */
-} section_type_t;
+#include "../common/objfile.h"
 
 /** Describes a section entry in the sections list */
 typedef struct section_s

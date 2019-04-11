@@ -12,15 +12,13 @@
 #include <stdlib.h>
 
 #include "../common/errors.h"
+#include "../common/objfile.h"
 #include "commons.h"
 #include "opcodes.h"
-#include "outfile.h"
 
 static section_t* root = NULL;  /**< Root of the sections list */
 static section_t* cur;          /**< Current section */
 static int num_sections;
-
-static void write_section_header();
 
 /*========================================================================*//**
  * Init the sections list
@@ -82,6 +80,8 @@ section_t* get_section_by_id(int id)
  *//*=========================================================================*/
 void add_section(int pass, section_type_t type, int address)
 {
+    section_entry_t sect_entry;
+    
     /* PASS 1 : Create a new section */
     if (pass == READ_PASS)
     {
@@ -108,19 +108,27 @@ void add_section(int pass, section_type_t type, int address)
         cur->next = NULL;
         ++num_sections;
     }
-    else /* PASS 2 : write the section header to the object file */
+    else /* PASS 2 */
     {
-        if (cur->next == NULL)
+        if (cur->next == NULL) /* First section : write the block header */
         {
+            block_header_t header;
+            header.type = sections;
+            header.num_entries = num_sections;
             cur = root;
-            write_block_header(sections, num_sections);
+            write_block_header(&header);
         }
         else
             cur = cur->next;
 
         cur->pc = 0;
 
-        write_section_header();
+        /* New section : use new header */
+        sect_entry.id = cur->id;
+        sect_entry.type = cur->type;
+        sect_entry.address_or_bank = cur->address;
+        sect_entry.data_size = cur->datasize;
+        write_section_entry(&sect_entry);
     }
 }
 
@@ -170,21 +178,9 @@ void add_data(int pass, char c)
     }
     else
     {
-        write_int8(c);
+        write_byte(c);
         cur->pc++;
     }
-}
-
-
-/*========================================================================*//**
- * Write the current section header to the object file
- *//*=========================================================================*/
-void write_section_header()
-{
-    write_int32(cur->id);
-    write_int16(cur->type);
-    write_int16(cur->address);
-    write_int32(cur->datasize);
 }
 
 /**

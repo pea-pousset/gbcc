@@ -12,6 +12,8 @@
 #include "../common/errors.h"
 #include "rom.h"
 
+/*
+
 typedef struct sectlist_s
 {
     section_t*          sect;
@@ -54,11 +56,11 @@ void add_section(section_t* sect)
         while (plist)
         {
             if (overlap(sect, plist->sect))
-                err(F, "section overlapping");  /* BETTER ERROR MESSAGE REQUIRED ####### */
+                err(F, "section overlapping");  /* BETTER ERROR MESSAGE REQUIRED ####### 
             plist = plist->next;
         }
 
-        /* CHECK FOR DATA SIZE < BANK LIMIT ########################################## */
+        /* CHECK FOR DATA SIZE < BANK LIMIT ##########################################
 
         memcpy(bank + sect->address, sect->data, sect->datasize);
 
@@ -66,7 +68,7 @@ void add_section(section_t* sect)
         fprintf(stderr, "id: %d\n", sect->id);
         fprintf(stderr, "type: %s\n", sect->type == org ? ".org" : "???");
         fprintf(stderr, "address: %04X\n", sect->address);
-        fprintf(stderr, "size: %d bytes\n", sect->datasize);
+        fprintf(stderr, "size: %lu bytes\n", sect->datasize);
         for (i = 0; i < sect->datasize; ++i)
         {
             ++c;
@@ -129,6 +131,7 @@ int overlap(section_t* t1, section_t* t2)
 
     return 0;
 }
+*/
 
 /**
  * \} Map

@@ -16,12 +16,13 @@
 #include "../common/options.h"
 #include "../common/files.h"
 #include "../common/gbmmap.h"
+#include "../common/objfile.h"
 #include "commons.h"
 #include "opcodes.h"
 #include "sections.h"
 #include "syms.h"
 #include "version.h"
-#include "outfile.h"
+#include "relocs.h"
 
 #define BUFSIZE     256
 
@@ -37,6 +38,7 @@ typedef enum
     _BYTE,      /**< .byte directive */
     _WORD,      /**< .word directive */
     _ASCII,     /**< .ascii directive */
+    _GLOBAL,    /**< .global directive */
     _ORG,       /**< .org directive */
 
     EOL,        /**< End of line */
@@ -130,6 +132,7 @@ int main(int argc, char** argv)
 
         init_sections();
         init_syms();
+        init_relocs();
         set_outfile(outfile);
 
         clear_errors();
@@ -154,6 +157,7 @@ int main(int argc, char** argv)
             parse_line(GEN_PASS);
 
         write_syms();
+        write_relocs();
         fclose(outfile);
 
         if (!errors())
@@ -183,6 +187,7 @@ int main(int argc, char** argv)
     
     free_sections();
     free_syms();
+    free_relocs();
 
     if (!errors_encountered && !donot_link)
     {
@@ -250,6 +255,7 @@ void on_fatal_error(int from_program)
     
     free_sections();
     free_syms();
+    free_relocs();
 
     if (from_program)
         exit(EXIT_FAILURE);
@@ -369,6 +375,8 @@ void get_token()
             tok.type = _WORD;
         else if (compare(tok.str + 1, "ASCII") == 0)
             tok.type = _ASCII;
+        else if (compare(tok.str + 1, "GLOBAL") == 0)
+            tok.type = _GLOBAL;
         else if (compare(tok.str + 1, "ORG") == 0)
             tok.type = _ORG;
     }
@@ -455,7 +463,7 @@ void parse_line(int pass)
     }
     else if (tok.type != KEYW)
     {
-        err(E, "expected instruction");
+        err(E, "expected instruction or directive");
         return;
     }
 
@@ -466,7 +474,7 @@ void parse_line(int pass)
         char c = toupper(tok.str[i]);
         if (!filter(&lb, &ub, i, c))
         {
-            err(E, "expected instruction");
+            err(E, "expected instruction or directive");
             return;
         }
     }
@@ -784,7 +792,10 @@ void parse_directive(int pass)
                 }
                 else
                 {
-                    err(E, "expected numeric constant or nil");
+                    if (mspace == rom_0 || mspace == rom_n)
+                        err(E, "expected numeric constant");
+                    else
+                        err(E, "expected nothing");
                     return;
                 }
             }
@@ -823,6 +834,16 @@ void parse_directive(int pass)
     }
     else if (tok.type == _ASCII)
     {
+    }
+    else if (tok.type == _GLOBAL)
+    {
+        get_token();
+        if (tok.type != ID)
+        {
+            err(E, "expected identifier after \".global\" directive");
+            return;
+        }
+        sym_set_global(pass, tok.str);
     }
     else if (tok.type == _ORG)
     {
@@ -874,6 +895,8 @@ int compare(const char* str1, const char* str2)
  * \param ub: upper bound index in the opcode table
  * \param col: column of the character to examine in an opcode
  * \param c: the character to compare
+ *
+ * \todo binary search
  *//*=========================================================================*/
 int filter(int *lb, int *ub, int col, char c)
 {

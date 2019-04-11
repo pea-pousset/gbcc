@@ -12,27 +12,17 @@
 #include "../common/files.h"
 #include "../common/options.h"
 #include "../common/utils.h"
+#include "../common/objfile.h"
 #include "version.h"
 #include "map.h"
 #include "rom.h"
 
-#define MAX_ID_LEN  31
-
-typedef enum
+typedef struct sectlist_s
 {
-    sections,
-    symbols
-} blocktype_t;
-
-typedef struct
-{
-    int     file_id;
-    int     section_id;
-    int     offset;
-    char    id[MAX_ID_LEN + 1];
-    int     global;
-    int     extern_;
-} symbol_t;
+    int                file_id;
+    section_entry_t*   entry;
+    struct sectlist_s* next;
+} sectlist_t;
 
 const char* const pgm = "gbld";
 
@@ -41,11 +31,7 @@ static FILE*  infile = NULL;
 void help();
 void version();
 void on_fatal_error(int from_program);
-unsigned char read_int8();
-int  read_int32();
-int  read_int16();
-void read_data(char* dest, size_t size);
-
+void add_section_entry(int file_id, section_entry_t* entry);
 
 const char header_data[76] =
 {
@@ -69,7 +55,7 @@ const char header_data[76] =
     0xFF,                       /* Header checksum */
     0xFF, 0xFF                  /* Global checksum */
 };
-
+/*
 const section_t header =
 {
     .file_id       = -1,
@@ -82,14 +68,14 @@ const section_t header =
     .data          = header_data
 };
 
+*/
 
 int main(int argc, char** argv)
 {
-    int i, j;
+    int i, j, file_id = 0;
     sourcefile_t* file = NULL;
     char* output_name = NULL;
     FILE* outfile = NULL;
-    int file_id = 0;
 
     esetprogram(pgm);
     esetonfatal(&on_fatal_error);
@@ -103,17 +89,12 @@ int main(int argc, char** argv)
     strcpy(output_name, get_option("-o")->value.str);
 
     init_rom();
-    add_section(&header);
 
     file_first();
     while ((file = file_next()))
     {
         size_t fsize;
-        char signature[8];
-        int  ver;
-
         esetfile(file->name);
-
         if (! (infile = fopen(file->name, "rb")))
         {
             ccerr(F, "unable to open \"%s\"", file->name);
@@ -123,72 +104,65 @@ int main(int argc, char** argv)
         fseek(infile, 0, SEEK_END);
         fsize = ftell(infile);
         fseek(infile, 0, SEEK_SET);
-
-        if (fread(signature, 1, 8, infile) < 8)
-            err(F, "file format not recognized");
-
-        if (strncmp(signature, "GBOBJECT", 8))
-            err(F, "file format not recognized");
-
-        ver = read_int32();
-        if (ver != 1)
-            ccerr(F, "object file format version not handled");
-
+        
+        set_infile(infile);
+        read_obj_header();
+        
         while (ftell(infile) < fsize)
         {
-            blocktype_t type = read_int16();
-            int num_entries = read_int32();
-
-
-            if (type == sections)
+            block_header_t* header= read_block_header();
+            if (header->type == sections)
             {
-                    err(N, "New sections block with %d entries", num_entries);
-                for (i = 0; i < num_entries; ++i)
+                section_entry_t* sect;
+#ifndef NDEBUG
+                printf("New sections block with %d entries\n", header->num_entries);
+#endif
+                for (i = 0; i < header->num_entries; ++i)
                 {
-                    /* check section size ###########################################" */
-
-                    section_t* sect = mmalloc(sizeof(section_t));
-                    sect->id = read_int32();
-                    sect->type = read_int16();
-                    sect->address = read_int16();
-                    sect->datasize = read_int32();
-                    sect->data = (char*)mmalloc(sect->datasize);
-                    read_data(sect->data, sect->datasize);
-
-                    sect->reloc_address = sect->address;
-                    sect->file_id = file_id;
-                    sect->header = 0;
-
-                    add_section(sect);
+                    sect = read_section_entry();
+#ifndef NDEBUG
+                    printf("  * Section %d\n", sect->id);
+                    printf("    - Type:      %s\n", sect->type == org ? ".org" : "");
+                    printf("    - Address:   %04x\n", sect->address_or_bank);
+                    printf("    - Data size: %d\n", sect->data_size);
+                    printf("\n");
+#endif
                 }
             }
-            else if (type == symbols)
+            else if (header->type == symbols)
             {
-                err(N, "New symbols block with %d entries", num_entries);
-                for (i = 0; i < num_entries; ++i)
+                symbol_entry_t* sym;
+#ifndef NDEBUG
+                printf("New symbols block with %d entries\n", header->num_entries);
+#endif
+                for (i = 0; i < header->num_entries; ++i)
                 {
-                    symbol_t sym;
-                    read_data((char*)&sym.id, MAX_ID_LEN + 1);
-                    sym.section_id = read_int32();
-                    sym.offset = read_int16();
-                    sym.global = read_int8();
-                    sym.extern_ = read_int8();
-
-                    sym.file_id = file_id;
-
-                    if (sym.global)
-                        fprintf(stderr, "global\n");
-                    if (sym.extern_)
-                        fprintf(stderr, "extern\n");
-                    fprintf(stderr, "name: %s\n", sym.id);
-                    fprintf(stderr, "section: %d\n", sym.section_id);
-                    fprintf(stderr, "offset: %d\n", sym.offset);
-
-                    fprintf(stderr, "\n");
+                    sym = read_symbol_entry();
+#ifndef NDEBUG
+                    printf("  * Symbol %d\n", sym->sym_id);
+                    printf("    - ID:         %s\n", sym->id);
+                    printf("    - In section: %d\n", sym->section_id);
+                    printf("    - Offset:     %d\n", sym->offset);
+                    printf("    - Type:       %c\n", " GE"[sym->type]);
+                    printf("\n");
+#endif
                 }
             }
-            else
-                err(F, "invalid object file");
+            else if (header->type == relocations)
+            {
+                reloc_entry_t* reloc;
+#ifndef NDEBUG
+                printf("New relocations block with %d entries\n", header->num_entries);
+#endif
+                for (i = 0; i < header->num_entries; ++i)
+                {
+                    reloc = read_reloc_entry();
+#ifndef NDEBUG
+                    printf("  * Relocation\n");
+                    printf("  - Symbol: %d\n", reloc->sym_id);
+#endif
+                }
+            }
         }
 
         fclose(infile);
@@ -205,7 +179,7 @@ int main(int argc, char** argv)
 
     fclose(outfile);
     free_rom();
-    free_sections();
+    // free_sections();
 
     return EXIT_SUCCESS;
 }
@@ -238,49 +212,7 @@ void version()
 void on_fatal_error(int from_program)
 {
     free_rom();
-    free_sections();
     exit(EXIT_FAILURE);
-}
-
-
-
-
-unsigned char read_int8()
-{
-    unsigned char val;
-    if (fread(&val, 1, 1, infile) < 1)
-        err(F, "invalid object file");
-    return val;
-}
-
-
-
-int read_int32()
-{
-    unsigned char bytes[4];
-    if (fread(bytes, 1, 4, infile) < 4)
-        err(F, "invalid object file");
-    return ((bytes[3] << 24) + (bytes[2] << 16) + (bytes[1] << 8) + bytes[0]);
-}
-
-
-
-
-int read_int16()
-{
-    unsigned char bytes[2];
-    if (fread(bytes, 1, 2, infile) < 2)
-        err(F, "invalid object file");
-    return ((bytes[1] << 8) + bytes[0]);
-}
-
-
-
-
-void read_data(char* dest, size_t size)
-{
-    if (fread(dest, 1, size, infile) < size)
-        err(F, "invalid oject file");
 }
 
 /**

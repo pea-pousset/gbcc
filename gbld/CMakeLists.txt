@@ -9,6 +9,7 @@ set(src
 	../common/errors.c
 	../common/files.c
 	../common/gbmmap.c
+    ../common/objfile.c
 )
 set(inc
 	version.h
@@ -19,6 +20,7 @@ set(inc
 	../common/options.h
 	../common/utils.h
 	../common/gbmmap.h
+    ../common/objfile.h
 )
 add_executable(gbld ${src} ${inc})
 install(TARGETS gbld DESTINATION bin)

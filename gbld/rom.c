@@ -12,8 +12,6 @@
 #include <string.h>
 #include "../common/utils.h"
 
-#define MAX_ROM_BANKS   512
-
 static char* rombanks[MAX_ROM_BANKS];
 static char dummy[BANK_SIZE];
 
