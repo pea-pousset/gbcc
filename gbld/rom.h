@@ -8,13 +8,11 @@
 #ifndef ROM_H
 #define ROM_H
 
-#define MAX_ROM_BANKS   512
-#define BANK_SIZE       0x4000
-
-void  init_rom();
-void  free_rom();
-char* get_from_org(int org);
-char* get_rom_bank(int bank);
+void           init_rom();
+void           free_rom();
+unsigned char* get_rom_from_org(int org);
+unsigned char* get_rom_bank(int bank);
+void           fix_rom();
 
 #endif
 

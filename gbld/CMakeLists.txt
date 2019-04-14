@@ -4,6 +4,7 @@ set(src
 	main.c
 	map.c
 	rom.c
+    lists.c
 	../common/options.c
 	../common/utils.c
 	../common/errors.c
@@ -15,6 +16,7 @@ set(inc
 	version.h
 	map.h
 	rom.h
+    lists.h
 	../common/errors.h
 	../common/files.h
 	../common/options.h

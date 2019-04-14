@@ -101,10 +101,11 @@ int main(int argc, char** argv)
         return EXIT_FAILURE;
 
     tabstop = get_option("-ftabstop=")->value.num;
+    donot_link = get_option("-c")->set;
 
     output_name = (char*)mmalloc(strlen(get_option("-o")->value.str) + 1);
     strcpy(output_name, get_option("-o")->value.str);
-
+    
     file_first();
     while ((file = file_next()) != NULL)
     {
@@ -164,16 +165,8 @@ int main(int argc, char** argv)
         {
             file_set_attr(O, 0);    /* Update the file extension */
 
-            if (donot_link && output_name)
-            {
-                if (!copy_file(oname, output_name))
-                    ccerr(F, "could not write to the output file");
-            }
-            else
-            {
-                if (!copy_file(oname, file_name()))
-                    ccerr(F, "could not write to the output file");
-            }
+            if (!copy_file(oname, file_name()))
+                ccerr(F, "could not write to the output file");
         }
         else
         {
@@ -209,7 +202,6 @@ int main(int argc, char** argv)
         strcpy(callstr + len, optstr);
 
         system(callstr);
-        /* printf("%s\n", callstr); */
 
         free(optstr);
         free(callstr);
@@ -442,6 +434,7 @@ void parse_line(int pass)
         return;
     }
 
+    /* Label */
     if (tok.type == ID)
     {
         sym_declare(pass, tok.str, input_name, tok.line, tok.column);
@@ -583,7 +576,10 @@ void parse_line(int pass)
             char c = toupper(tok.str[i]);
             if (!filter(&lb, &ub, ccol + i, c))
             {
-                err(E, "invalid argument");
+                if (tok.type == EOL)
+                    err(E, "expected argument");
+                else
+                    err(E, "invalid argument");
                 return;
             }
         }
@@ -780,7 +776,7 @@ void parse_directive(int pass)
         token_type_t type = tok.type;
         do
         {
-            gbspace_t mspace = get_space(get_current_section()->address);
+            gbspace_t mspace = get_space(get_current_section()->offset);
             get_token();
             if (tok.type != NUM)
             {
@@ -865,7 +861,7 @@ void parse_directive(int pass)
             return;
         }
 
-        add_section(pass, org, address);
+        add_section(pass, org, address, 0);
     }
  }
 

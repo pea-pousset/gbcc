@@ -158,15 +158,17 @@ int sym_request(int pass, char* id, int relative)
         return 0;
     }
 
+    cursect = get_current_section();
+    
     /* Imported symbol: add a relocation information */
-    /*
     if (psym->type == _extern)
     {
+        add_reloc(psym->sym_id, cursect->id, cursect->pc+1, relative);
+        if (relative)
+            err(W, "relative jump to an external address");
         return 0;
     }
-    */
 
-    cursect = get_current_section();
     if (relative)
     {
         if (psym->section_id != cursect->id)
@@ -180,7 +182,7 @@ int sym_request(int pass, char* id, int relative)
             int diff = psym->offset - (cursect->pc + 2);
             if (diff > 128 || diff < -127)
             {
-                err(E, "relative jump out of range");
+                err(E, "relative jump to '%s' out of range", psym->id);
                 return 0;
             }
             return diff;
@@ -190,7 +192,7 @@ int sym_request(int pass, char* id, int relative)
 
     targetsect = get_section_by_id(psym->section_id);
     if (targetsect->type == org)
-        return targetsect->address + psym->offset;
+        return targetsect->offset + psym->offset;
 
     TODO("Relocation");
 

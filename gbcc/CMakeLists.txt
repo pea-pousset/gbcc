@@ -13,6 +13,7 @@ set(src
 	../common/utils.c
 	../common/errors.c
 	../common/files.c
+    ../common/gbmmap.c
 )
 set(inc
     ast.h
@@ -26,7 +27,8 @@ set(inc
     ../common/errors.h
     ../common/files.h
     ../common/options.h
-    ../common/utils.h    
+    ../common/utils.h
+    ../common/gbmmap.h
 )
 add_executable(gbcc ${src} ${inc})
 install(TARGETS gbcc DESTINATION bin)

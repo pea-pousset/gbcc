@@ -61,7 +61,8 @@ section_entry_t* read_section_entry()
     section_entry_t* sect = (section_entry_t*)mmalloc(sizeof(section_entry_t));
     sect->id = read_int32();
     sect->type = read_int32();
-    sect->address_or_bank = read_int16();
+    sect->offset = read_int16();
+    sect->bank_num = read_int32();
     sect->data_size = read_int32();
     if (sect->type < org || sect->type > org)
         err(F, "invalid object file: unknown section type");
@@ -119,7 +120,8 @@ void write_section_entry(section_entry_t* entry)
 {
     write_int32(entry->id);
     write_int32(entry->type);
-    write_int16(entry->address_or_bank);
+    write_int16(entry->offset);
+    write_int32(entry->bank_num);
     write_int32(entry->data_size);
 }
 

@@ -30,6 +30,7 @@
     #endif
 #endif
 
+#include "../common/gbmmap.h"
 #include "errors.h"
 #include "utils.h"
 #include "files.h"
@@ -43,6 +44,15 @@ option_t options[NUM_OPTIONS] =
     { "-S",          flag,   {.num = 0 },   NULL,       0, 0, 0 },
     { "-c",          flag,   {.num = 0 },   NULL,       0, 1, 0 },
     { "-o",          string, {.str = NULL}, "filename", 0, 1, 1 }
+};
+
+static cartridge_t cartridge =
+{
+    dmg,
+    rom_only,
+    _32K,
+    no_ram,
+    {'O', 'U', 'T', '.', 'G', 'B', ' ', ' ', ' ', ' ', ' '}
 };
 
 static void read_number(char* p, option_t* opt);
@@ -161,6 +171,8 @@ void parse_options(int argc, char** argv, int program, void(*help)(),
         opt->value.num = 8;
         opt->set = 0;
     }
+    
+    set_cartridge(cartridge);
 }
 
 

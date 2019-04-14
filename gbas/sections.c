@@ -77,8 +77,9 @@ section_t* get_section_by_id(int id)
  * \param pass: assembly pass
  * \param type: the new section's type
  * \param address: the new section's address
+ * \param bank: the new section's bank
  *//*=========================================================================*/
-void add_section(int pass, section_type_t type, int address)
+void add_section(int pass, section_type_t type, int address, int bank)
 {
     section_entry_t sect_entry;
     
@@ -102,7 +103,8 @@ void add_section(int pass, section_type_t type, int address)
 
         cur->type = type;
         cur->id = num_sections;
-        cur->address = address;
+        cur->offset = address;
+        cur->bank = bank;
         cur->pc = 0;
         cur->datasize = 0;
         cur->next = NULL;
@@ -126,7 +128,8 @@ void add_section(int pass, section_type_t type, int address)
         /* New section : use new header */
         sect_entry.id = cur->id;
         sect_entry.type = cur->type;
-        sect_entry.address_or_bank = cur->address;
+        sect_entry.offset = cur->offset;
+        sect_entry.bank_num = cur->bank;
         sect_entry.data_size = cur->datasize;
         write_section_entry(&sect_entry);
     }

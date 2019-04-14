@@ -5,22 +5,13 @@
  * \{
  */
 
-#ifndef SECTIONS_H
-#define SECTIONS_H
-
-#include <stdlib.h>
 #include "../common/objfile.h"
-/*
-typedef struct
-{
-    int             file_id;
-    
-} section_t;
 
-void free_sections();
-void add_section(section_t* sect);
-*/
-#endif
+#define  ALLOC_FAILED   0x10000
+
+void     init_map();
+void     free_map();
+unsigned allocate(const char* filename, section_entry_t* sect);
 
 /**
  * \} Map

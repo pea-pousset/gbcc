@@ -50,7 +50,8 @@ typedef struct section_entry_s
 {
     int            id;
     section_type_t type;
-    int            address_or_bank;
+    int            offset;
+    int            bank_num;
     int            data_size;
     unsigned char* data;
 } section_entry_t;
