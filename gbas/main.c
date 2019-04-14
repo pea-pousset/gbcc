@@ -75,7 +75,8 @@ void help();
 void version();
 void on_fatal_error(int from_program);
 int  get_line();
-void get_token();
+void get_token(int pass);
+int  read_char_literal(int pass, char delim);
 void parse_line(int pass);
 void parse_directive(int pass);
 int  compare(const char* str1, const char* str2);
@@ -275,6 +276,7 @@ int get_line()
     while (*lineptr && *lineptr != ';' && *lineptr != '\n')
         ++lineptr;
     *lineptr = 0;
+    *lineptr++ = 0;
     lineptr = linebuf;
 
     ++line;
@@ -286,12 +288,14 @@ int get_line()
 
 /*========================================================================*//**
  * Read a new token and place it in tok
- * \todo Allow indentifiers starting with a '.' to implement sublabels
+ * \todo Allow indentifiers starting with '@' to implement sublabels
+ * \todo string literals
  *//*=========================================================================*/
-void get_token()
+void get_token(int pass)
 {
     int i;
     memset(tok.str, 0, MAX_ID_LEN + 1);
+    tok.num_val = 0;
 
     while (isspace(*lineptr))
     {
@@ -400,11 +404,82 @@ void get_token()
         if (isalpha(*lineptr) || (*lineptr == '_'))
             tok.type = ERR;
     }
+    else if (*lineptr == '\'')
+    {
+        ++lineptr;
+        ++column;
+        tok.type = NUM;
+        tok.num_val = read_char_literal(pass, '\'');
+        if (*lineptr != '\'' && pass == READ_PASS)
+            err(W, "multi-character constant");
+        while (*lineptr && *lineptr != '\'')
+        {
+            ++lineptr;
+            ecolumn = ++column;
+            if (!*lineptr)
+            {
+                --lineptr;
+                ecolumn = --column;
+                err(E, "unterminated character constant");
+                break;
+            }
+        }
+        ++lineptr;
+        ecolumn = ++column;
+    }
     else
     {
         tok.type = *lineptr++;
         ++column;
     }
+}
+
+/** \todo octal and hex escape sequences */
+int read_char_literal(int pass, char delim)
+{
+    int c = *lineptr++;
+    ecolumn = ++column;
+    if (!c)
+    {
+        printf("coucou\n");
+        --lineptr;
+        ecolumn = --column;
+        err(E, "unterminated character or string literal");
+        return c;
+    }
+    if (c == delim)
+    {
+        if (delim == '\'')
+            err(E, "empty character literal");
+        else
+            err(E, "empty string literal");
+        return c;
+    }
+
+    if (c == '\'')
+    {
+        c = *lineptr++;
+        ecolumn = ++column;
+        switch (c)
+        {
+            case 'a': c = '\a'; break;
+            case 'b': c = '\b'; break;
+            case 'e': c = '\e'; break;
+            case 'f': c = '\f'; break;
+            case 'n': c = '\n'; break;
+            case 'r': c = '\r'; break;
+            case 't': c = '\t'; break;
+            case 'v': c = '\v'; break;
+            case '\\': c = '\\'; break;
+            case '\'': c = '\''; break;
+            case '\"': c = '\"'; break;
+            case '\?': c = '\?'; break;
+            default:
+                if (pass == READ_PASS)
+                    err(W, "unknown escape sequence \'\\%c\'", c);
+        }
+    }
+    return c;
 }
 
 
@@ -423,7 +498,7 @@ void parse_line(int pass)
     char exp = 0;   /* Non-zero means ] or ) is expected */
     int i;
 
-    get_token();
+    get_token(pass);
 
     if (tok.type == EOL)
         return;
@@ -438,13 +513,13 @@ void parse_line(int pass)
     if (tok.type == ID)
     {
         sym_declare(pass, tok.str, input_name, tok.line, tok.column);
-        get_token();
+        get_token(pass);
         if (tok.type != ':')
         {
             err(E, "expected ':' after identifier");
             return;
         }
-        get_token();
+        get_token(pass);
     }
 
     if (tok.type == EOL)
@@ -479,7 +554,7 @@ void parse_line(int pass)
     }
 
     /*====== argument 1 ======*/
-    get_token();
+    get_token(pass);
     ccol = ARG1_COLUMN;
     exp = 0;
     if (tok.type == '(' || tok.type == '[')
@@ -494,7 +569,7 @@ void parse_line(int pass)
             err(E, "invalid argument");
             return;
         }
-        get_token();
+        get_token(pass);
         ccol = ARG_1_BRACKETED;
     }
 
@@ -507,7 +582,7 @@ void parse_line(int pass)
             if (tok.type == '-')
                 neg = 1;
 
-            get_token();
+            get_token(pass);
             if (tok.type != NUM)
             {
                 err(E, "invalid number");
@@ -592,7 +667,7 @@ void parse_line(int pass)
 
     if (exp)
     {
-        get_token();
+        get_token(pass);
         if (tok.type != exp)
         {
             if (exp == ')')
@@ -606,7 +681,7 @@ void parse_line(int pass)
 
     if (lb == ub && opcodes[lb].str[ARG2_COLUMN] == ' ')
     {
-        get_token();
+        get_token(pass);
         if (tok.type == EOL)
             add_opcode(pass, lb, val);
         else
@@ -615,14 +690,14 @@ void parse_line(int pass)
     }
 
     /*===== argument 2 =====*/
-    get_token();
+    get_token(pass);
     if (tok.type != ',')
     {
         err(E, "expected ','");
         return;
     }
 
-    get_token();
+    get_token(pass);
     ccol = ARG2_COLUMN;
     exp = 0;
     if (tok.type == '(' || tok.type == '[')
@@ -637,7 +712,7 @@ void parse_line(int pass)
             err(E, "invalid argument");
             return;
         }
-        get_token();
+        get_token(pass);
         ccol = ARG_2_BRACKETED;
     }
 
@@ -650,7 +725,7 @@ void parse_line(int pass)
             if (tok.type == '-')
                 neg = 1;
 
-            get_token();
+            get_token(pass);
             if (tok.type != NUM)
             {
                 err(E, "invalid number");
@@ -737,7 +812,7 @@ void parse_line(int pass)
 
     if (exp)
     {
-        get_token();
+        get_token(pass);
         if (tok.type != exp)
         {
             if (exp == ')')
@@ -751,7 +826,7 @@ void parse_line(int pass)
 
     if (lb == ub)
     {
-        get_token();
+        get_token(pass);
         if (tok.type == EOL)
             add_opcode(pass, lb, val);
         else
@@ -777,7 +852,7 @@ void parse_directive(int pass)
         do
         {
             gbspace_t mspace = get_space(get_current_section()->offset);
-            get_token();
+            get_token(pass);
             if (tok.type != NUM)
             {
                 if (tok.type == EOL)
@@ -817,7 +892,7 @@ void parse_directive(int pass)
                 add_data(pass, ((tok.num_val & 0xFF00) >> 8));
 
             if (tok.type != EOL)
-                get_token();
+                get_token(pass);
             if (tok.type == EOL)
                 break;
             if (tok.type != ',')
@@ -833,7 +908,7 @@ void parse_directive(int pass)
     }
     else if (tok.type == _GLOBAL)
     {
-        get_token();
+        get_token(pass);
         if (tok.type != ID)
         {
             err(E, "expected identifier after \".global\" directive");
@@ -845,7 +920,7 @@ void parse_directive(int pass)
     {
         int address;
 
-        get_token();
+        get_token(pass);
         if (tok.type != NUM)
         {
             err(E, "expected numeric constant after \".org\" directive");
@@ -854,7 +929,7 @@ void parse_directive(int pass)
 
         address = tok.num_val;
 
-        get_token();
+        get_token(pass);
         if (tok.type != EOL)
         {
             err(E, "unexpected argument");

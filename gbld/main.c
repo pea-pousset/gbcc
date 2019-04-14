@@ -65,8 +65,6 @@ int main(int argc, char** argv)
             continue;
         }
         
-        err(N, "file id %d", file_id);
-
         fseek(infile, 0, SEEK_END);
         fsize = ftell(infile);
         fseek(infile, 0, SEEK_SET);
