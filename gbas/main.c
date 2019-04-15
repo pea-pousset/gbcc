@@ -39,6 +39,7 @@ typedef enum
     _BYTE,      /**< .byte directive */
     _WORD,      /**< .word directive */
     _ASCII,     /**< .ascii directive */
+    _SPRITE,    /**< .sprite directive */
     _GLOBAL,    /**< .global directive */
     _ORG,       /**< .org directive */
 
@@ -70,6 +71,7 @@ static int   line;               /**< Current line number in the source file */
 static int   column;             /**< Current column in the source file */
 static token_t tok;              /**< The current token */
 static int   tabstop;            /**< Tabulation width in the source code */
+static int   spritemode;         /**< Next token read will be a sprite line */
 static jmp_buf fataljmp;
 
 void help();
@@ -93,6 +95,7 @@ int main(int argc, char** argv)
     char* output_name = NULL;
     int donot_link = 0;
     int errors_encountered = 0;
+    spritemode = 0;
 
     esetprogram(pgm);
     esetonfatal(&on_fatal_error);
@@ -315,6 +318,29 @@ void get_token(int pass)
     {
         tok.type = EOL;
     }
+    else if (spritemode)
+    {
+        int val;
+        spritemode = 0;
+        tok.type = NUM;
+        for (i = 0; i < 8; ++i)
+        {
+            switch (*lineptr)
+            {
+                case '.': val = 0; break;
+                case 'o': val = 1; break;
+                case 'O': val = 2; break;
+                case '#': val = 3; break;
+                default:
+                    tok.type = ERR;
+                    return;
+            }
+            tok.num_val |= (val & 2) << (14-i);
+            tok.num_val |= (val & 1) << (7-i);
+            ++lineptr;
+            ++column;
+        }
+    }
     else if (*lineptr == '_' || isalpha(*lineptr))
     {
         tok.type = ID;
@@ -372,6 +398,8 @@ void get_token(int pass)
             tok.type = _WORD;
         else if (compare(tok.str + 1, "ASCII") == 0)
             tok.type = _ASCII;
+        else if (compare(tok.str + 1, "SPRITE") == 0)
+            tok.type = _SPRITE;
         else if (compare(tok.str + 1, "GLOBAL") == 0)
             tok.type = _GLOBAL;
         else if (compare(tok.str + 1, "ORG") == 0)
@@ -882,7 +910,7 @@ void parse_directive(int pass)
                     if (mspace == rom_0 || mspace == rom_n)
                         err(E, "expected numeric or character constant");
                     else
-                        err(E, "expected nothing");
+                        err(E, "expected end-of-line");
                     return;
                 }
             }
@@ -933,6 +961,21 @@ void parse_directive(int pass)
         while (*c)
             add_data(pass, *c++);
         add_data(pass, 0);
+    }
+    else if (tok.type == _SPRITE)
+    {
+        spritemode = 1;
+        get_token(pass);
+        if (tok.type != NUM)
+        {
+            err(E, "invalid sprite data string");
+            return;
+        }
+        add_data(pass, (tok.num_val & 0xFF));
+        add_data(pass, ((tok.num_val & 0xFF00) >> 8));
+        get_token(pass);
+        if (tok.type != EOL)
+            err(E, "expected end-of-line");
     }
     else if (tok.type == _GLOBAL)
     {

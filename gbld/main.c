@@ -98,6 +98,15 @@ int main(int argc, char** argv)
                     printf("    - Offset:    %04x\n", sect->offset);
                     printf("    - Bank:      %d\n", sect->bank_num);
                     printf("    - Data size: %d\n", sect->data_size);
+                    for (int k = 0; k < sect->data_size; ++k)
+                    {
+                        if (k && (k % 16) == 0)
+                            printf("\n");
+                        else if (k && (k % 8) == 0)
+                            printf(" ");
+                        printf("%02X ", sect->data[k]);
+
+                    }
                     printf("\n");
 #endif
                 }
@@ -308,17 +317,63 @@ int main(int argc, char** argv)
         list = list->next;
     }
 
-    if ( ! (outfile = fopen(output_name, "wb")) )
-        ccerr(F, "unable to open \"%s\"", output_name);
-
     if (!errors())
     {
+        if ( ! (outfile = fopen(output_name, "wb")) )
+            ccerr(F, "unable to open \"%s\"", output_name);
+        
         fix_rom();
         for (i = 0; i < get_num_rom_banks(); ++i)
             fwrite(get_rom_bank(i), ROM_BANK_SIZE, 1, outfile);
+        fclose(outfile);
+    }
+    
+    /* Write sym file */
+    if (!errors())
+    {
+        symbol_entry_t* syms;
+        section_entry_t* sect;
+        int bank_num;
+        char* p = output_name;
+
+        while (*p)
+            ++p;
+        while (*p != '.' && p != output_name)
+            --p;
+        if (*p == '.')
+            *p = 0;
+        output_name = (char*)mrealloc(output_name, strlen(output_name) + 4);
+        p = output_name;
+        while (*p != 0)
+            ++p;
+        *p++ = '.';
+        *p++ = 's';
+        *p++ = 'y';
+        *p++ = 'm';
+        list = lsymbols;
+        
+        if ( ! (outfile = fopen(output_name, "w")) )
+            ccerr(F, "unable to open \"%s\"", output_name);
+        
+        while (list && !errors())
+        {
+            syms = (symbol_entry_t*)(list->data);
+            if (syms->type != _extern)
+            {
+                sect = get_section(list->file_id, syms->section_id);
+                if (get_space(sect->offset) == rom_n)
+                    bank_num = sect->bank_num + 1;
+                else
+                    bank_num = sect->bank_num;
+                fprintf(outfile, "%02X:%04X %s\n", bank_num,
+                       sect->offset + syms->offset, syms->id);
+            }
+            list = list->next;
+        }
+        
+        fclose(outfile);
     }
 
-    fclose(outfile);
     free_rom();
     free_map();
     list_free(lfiles);
