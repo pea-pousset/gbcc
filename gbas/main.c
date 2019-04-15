@@ -34,6 +34,7 @@ typedef enum
     ID = 256,   /**< Identifier */
     KEYW,       /**< Keyword */
     NUM,        /**< Numeric constant */
+    STR,        /**< String literal */
 
     _BYTE,      /**< .byte directive */
     _WORD,      /**< .word directive */
@@ -52,7 +53,7 @@ typedef struct
 {
     token_type_t type;          /**< Type < 256 represents a single character */
     int          num_val;       /**< Numeric value */
-    char         str[MAX_ID_LEN+1]; /**< Identifier or keyword string value */
+    char         str[BUFSIZE];  /**< Identifier or keyword string value */
     int          line;          /**< Line of the token in the source file */
     int          column;        /**< Column of the token in the source file */
 } token_t;
@@ -410,7 +411,7 @@ void get_token(int pass)
         ++column;
         tok.type = NUM;
         tok.num_val = read_char_literal(pass, '\'');
-        if (*lineptr != '\'' && pass == READ_PASS)
+        if (*lineptr && *lineptr != '\'' && pass == READ_PASS)
             err(W, "multi-character constant");
         while (*lineptr && *lineptr != '\'')
         {
@@ -420,12 +421,30 @@ void get_token(int pass)
             {
                 --lineptr;
                 ecolumn = --column;
-                err(E, "unterminated character constant");
+                err(E, "unterminated character literal");
                 break;
             }
         }
         ++lineptr;
         ecolumn = ++column;
+    }
+    else if (*lineptr == '"')
+    {
+        char* c = tok.str;
+        ++lineptr;
+        ++column;
+        tok.type = STR;
+        while ((*c = read_char_literal(pass, '"')))
+        {
+            if (*c == '"')
+            {
+                if (c == tok.str)
+                    err(W, "empty string");
+                *c = '\0';
+                break;
+            }
+            ++c;
+        }
     }
     else
     {
@@ -441,7 +460,6 @@ int read_char_literal(int pass, char delim)
     ecolumn = ++column;
     if (!c)
     {
-        printf("coucou\n");
         --lineptr;
         ecolumn = --column;
         err(E, "unterminated character or string literal");
@@ -451,12 +469,10 @@ int read_char_literal(int pass, char delim)
     {
         if (delim == '\'')
             err(E, "empty character literal");
-        else
-            err(E, "empty string literal");
         return c;
     }
 
-    if (c == '\'')
+    if (c == '\\')
     {
         c = *lineptr++;
         ecolumn = ++column;
@@ -864,7 +880,7 @@ void parse_directive(int pass)
                 else
                 {
                     if (mspace == rom_0 || mspace == rom_n)
-                        err(E, "expected numeric constant");
+                        err(E, "expected numeric or character constant");
                     else
                         err(E, "expected nothing");
                     return;
@@ -905,6 +921,18 @@ void parse_directive(int pass)
     }
     else if (tok.type == _ASCII)
     {
+        gbspace_t mspace = get_space(get_current_section()->offset);
+        char* c;
+        if (mspace != rom_0 && mspace != rom_n)
+        {
+            err(E, ".ascii directive outside of ROM space");
+            return;
+        }
+        get_token(pass);
+        c = tok.str;
+        while (*c)
+            add_data(pass, *c++);
+        add_data(pass, 0);
     }
     else if (tok.type == _GLOBAL)
     {
