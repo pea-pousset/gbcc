@@ -32,13 +32,10 @@ void codegen(FILE* outfile)
 
     f = outfile;
 
-    fprintf(f, "SECTION \".data\", WRAM0 ; RGBDS syntax\n");
-//    fprintf(f, ".org $300 ; TMP BS\n");
+    fprintf(f, ".org $C000 ; TMP BS\n");
     export_syms(syms_get_table());
 
-
-    fprintf(f, "\n\nSECTION \".text\", ROM0 ; RGBDS syntax\n");
-//    fprintf(f, ".org $150 ; TMP BS\n");
+    fprintf(f, ".org $200  ; TMP BS\n");
     export_funcs(syms_get_table());
     gen_block(tree);
 }
@@ -52,7 +49,7 @@ void export_syms(symtbl_t* tbl)
         if (tbl->syms[i]->function)
             continue;
         if (tbl->scope_id == 0)
-            fprintf(f, "; .global %s\n", tbl->syms[i]->id);
+            fprintf(f, ".global %s\n", tbl->syms[i]->id);
     }
 
     for (i = 0; i < tbl->num_syms; ++i)
@@ -61,10 +58,7 @@ void export_syms(symtbl_t* tbl)
             continue;
 
         fprintf(f, "%s:", tbl->syms[i]->id);
-        if (tbl->scope_id == 0)
-            fputc(':', f);
-        // fprintf(f, " %s\n", tbl->syms[i]->type_id == WORD ? ".word" : ".byte");
-        fprintf(f, " %s\n", tbl->syms[i]->type_id == WORD ? "DW" : "DB");
+        fprintf(f, " %s\n", tbl->syms[i]->type_id == WORD ? ".word" : ".byte");
     }
 
     for (i = 0; i < tbl->num_children; i++)
@@ -79,8 +73,7 @@ void export_funcs(symtbl_t* tbl)
         if (!tbl->syms[i]->function)
             continue;
 
-        // fprintf(f, "; .global %s\n", tbl->syms[i]->id);
-        fprintf(f, "EXPORT %s\n", tbl->syms[i]->id);
+        fprintf(f, ".global %s\n", tbl->syms[i]->id);
     }
 }
 
@@ -101,7 +94,7 @@ void gen_block(_node_t* node)
         else if (child->type == FUNCTION)
         {
             fprintf(f, "; FUNCTION\n");
-            fprintf(f, "%s::\n", child->identifier);
+            fprintf(f, "%s:\n", child->identifier);
         }
         else if (child->type == ASSIGN)
         {

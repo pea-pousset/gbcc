@@ -12,28 +12,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#ifdef _WIN32
-    #include <windows.h>
-#elif linux
-    #include <unistd.h>
-    #include <linux/limits.h>
-#else
-    #include <unistd.h>
-    #include <limits.h>
-#endif
-
-#ifndef PATH_MAX
-    #ifdef MAX_PATH
-        #define PATH_MAX    MAX_PATH
-    #else
-        #define PATH_MAX    4096
-    #endif
-#endif
-
 #include "../common/gbmmap.h"
 #include "errors.h"
 #include "utils.h"
 #include "files.h"
+#include "defs.h"
 
 option_t options[NUM_OPTIONS] =
 {
@@ -43,7 +26,8 @@ option_t options[NUM_OPTIONS] =
     { "-E",          flag,   {.num = 0 },   NULL,       0, 0, 0 },
     { "-S",          flag,   {.num = 0 },   NULL,       0, 0, 0 },
     { "-c",          flag,   {.num = 0 },   NULL,       0, 1, 0 },
-    { "-o",          string, {.str = NULL}, "filename", 0, 1, 1 }
+    { "-o",          string, {.str = NULL}, "filename", 0, 1, 1 },
+    { "-g",          flag,   {.num = 0},    NULL,       0, 1, 1 }
 };
 
 static cartridge_t cartridge =
@@ -133,7 +117,7 @@ void parse_options(int argc, char** argv, int program, void(*help)(),
                 }
                 else if (*p)
                 {
-                    /* Option name matched but there are additional
+                    /* Option name matched but there were additional
                     characters */
                     ccerr(E, "unrecognized command line option '%s'.", argv[i]);
                     continue;
@@ -193,16 +177,30 @@ option_t* get_option(const char* name)
 }
 
 
-
-
-char* gen_options_str(int program)
+/*========================================================================*//**
+ * Generate an null-terminated array of arguments filled with non-default
+ * options (set by when invoking the current program) which are compatible with
+ * the program to be invoked.
+ *
+ * \param program: program to invoke (GBAS or GBLD)
+ * \return null-terminated array of options
+ *//*=========================================================================*/
+char** gen_options(unsigned program)
 {
-    int i;
-    int len = 0;
-    char buf[4096];
-    char* str = (char*)mmalloc(1);
-    str[0] = '\0';
-
+    unsigned i, num_opts = 1;
+    char buf[PATH_MAX];
+    
+    if (program == GBCC)
+        return NULL;
+    char** opts = (char**)mmalloc((num_opts+1) * sizeof(char*));
+    opts[0] = (char*)mmalloc(5);
+    opts[1] = NULL;
+    
+    if (program == GBAS)
+        strcpy(opts[0], "gbas");
+    else
+        strcpy(opts[0], "gbld");
+    
     for (i = 0; i < NUM_OPTIONS; ++i)
     {
         if (!options[i].set)
@@ -211,19 +209,29 @@ char* gen_options_str(int program)
             continue;
         if (program == GBLD && !options[i].ld_opt)
             continue;
-
-        if (options[i].type == flag)
+        
+        opts = (char**)mrealloc(opts, (++num_opts+1) * sizeof(char*));
+        opts[num_opts] = NULL;
+        
+        if (options[i].type == flag)    /* -opt */
         {
-            sprintf(buf, " %s", options[i].name);
+            opts[num_opts-1] = (char*)mmalloc(strlen(options[i].name) + 1);
+            strcpy(opts[num_opts-1], options[i].name);
         }
-        else if (options[i].type == number)
+        else if (options[i].type == number) /* -opt=<number> */
         {
-            sprintf(buf, " %s%d", options[i].name, options[i].value.num);
+            sprintf(buf, "%s%d", options[i].name, options[i].value.num);
+            opts[num_opts-1] = (char*)mmalloc(strlen(buf) + 1);
+            strcpy(opts[num_opts-1], buf);
         }
-        else if (options[i].type == string)
+        else if (options[i].type == string) /* -opt <string> */
         {
-            int j;
+            unsigned j;
             int delim = 0;
+            
+            opts = (char**)mrealloc(opts, (++num_opts+1) * sizeof(char*));
+            opts[num_opts] = NULL;
+            
             for (j = 0; j < strlen(options[i].value.str); ++j)
             {
                 if (isspace(options[i].value.str[j]))
@@ -232,23 +240,45 @@ char* gen_options_str(int program)
                     break;
                 }
             }
-
+            
             if (delim)
-                sprintf(buf, " %s \"%s\"", options[i].name, options[i].value.str);
+                sprintf(buf, "\"%s\"", options[i].value.str);
             else
-                sprintf(buf, " %s %s", options[i].name, options[i].value.str);
+                strcpy(buf, options[i].value.str);
+            
+            opts[num_opts-2] = (char*)mmalloc(strlen(options[i].name) + 1);
+            opts[num_opts-1] = (char*)mmalloc(strlen(buf) + 1);
+            
+            strcpy(opts[num_opts-2], options[i].name);
+            strcpy(opts[num_opts-1], buf);
         }
-
-        str = (char*)mrealloc(str, len + strlen(buf) + 1);
-        strcpy(str + len, buf);
-        len += strlen(buf);
     }
 
-    return str;
+    return opts;
+}
+
+char** add_option(char** options, char* opt)
+{
+    unsigned nopt = 0;
+    while (options[nopt])
+        nopt++;
+    
+    options = (char**)mrealloc(options, (++nopt+1) * sizeof(char*));
+    options[nopt-1] = (char*)malloc(strlen(opt)+1);
+    options[nopt] = NULL;
+    strcpy(options[nopt-1], opt);
+    
+    return options;
 }
 
 
-
+void free_options(char* options[])
+{
+    unsigned i = 0;
+    while (options[i])
+        free(options[i++]);
+    free(options);
+}
 
 /*========================================================================*//**
  *

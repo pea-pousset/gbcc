@@ -185,6 +185,51 @@ int main(int argc, char** argv)
         printf("* %s %s\n", file->name, file->tmp ? "to be removed" : "end product");
 */
 
+    file_first();
+    while ((file = file_next()) != NULL && !donot_assemble)
+    {
+        if (file->type == S)
+        {
+            char*  iname = NULL;
+            int    del = file->tmp;
+            char** opts;
+            int oset = get_option("-o")->set;
+            
+            iname = (char*)mmalloc(strlen(file->name) + 1);
+            strcpy(iname, file->name);
+            
+            if (!donot_link && file_count() > 1)
+                get_option("-o")->set = 0;
+            
+            opts = gen_options(GBAS);
+            /* We don't want gbas to invoke the linker */
+            if (!donot_link)
+                opts = add_option(opts, "-c");
+            get_option("-o")->set = oset;
+            
+            opts = add_option(opts, iname);
+            if (exec("gbas", opts))
+            {
+                file_set_attr(O, 0);
+                if (del)
+                    remove(iname);
+            }
+        }
+    }
+    
+    file_first();
+    if (!donot_link && !errors())
+    {
+        char** opts;
+        opts = gen_options(GBAS);
+        while ((file = file_next()))
+            opts = add_option(opts, file->name);
+        exec("gbld", opts);
+    }
+
+    if (errors())
+        return EXIT_FAILURE;
+    
     return EXIT_SUCCESS;
 }
 
@@ -194,11 +239,12 @@ void help()
     puts("Options:");
     puts("  --help           Display this information.");
     puts("  --version        Display compiler version information.");
-    puts("  -ftabstop=width  Set the distance between tab stops");
     puts("  -E               Preprocess only; do not compile, assemble or link.");
     puts("  -S               Compile only; do not assemble or link.");
     puts("  -c               Compile and assemble, but do not link.");
     puts("  -o <file>        Place the output into <file>.");
+    puts("  -g               Generate debug information file");
+    puts("  -ftabstop=width  Set the distance between tab stops");
     exit(EXIT_SUCCESS);
 }
 

@@ -38,6 +38,7 @@ int main(int argc, char** argv)
     char* output_name = NULL;
     FILE* outfile = NULL;
     list_t* psyms1, * psyms2;
+    int gen_debug = 0;
 
 
     esetprogram(pgm);
@@ -50,6 +51,8 @@ int main(int argc, char** argv)
 
     output_name = (char*)mmalloc(strlen(get_option("-o")->value.str) + 1);
     strcpy(output_name, get_option("-o")->value.str);
+    
+    gen_debug = get_option("-g")->set;
 
     init_rom();
 
@@ -329,7 +332,7 @@ int main(int argc, char** argv)
     }
     
     /* Write sym file */
-    if (!errors())
+    if (!errors() && gen_debug)
     {
         symbol_entry_t* syms;
         section_entry_t* sect;
@@ -394,6 +397,7 @@ void help()
     puts("  --help      Display this information");
     puts("  --version   Display linker version information");
     puts("  -o <file>   Place the output into <file>");
+    puts("  -g          Generate debug information file");
     exit(EXIT_SUCCESS);
 }
 

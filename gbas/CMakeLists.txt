@@ -27,6 +27,7 @@ set(inc
 	../common/options.h
 	../common/gbmmap.h
     ../common/objfile.h
+    ../common/defs.h
 )
 add_executable(gbas ${src} ${inc})
 install(TARGETS gbas DESTINATION bin)

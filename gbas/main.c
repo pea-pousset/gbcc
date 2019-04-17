@@ -107,10 +107,10 @@ int main(int argc, char** argv)
 
     tabstop = get_option("-ftabstop=")->value.num;
     donot_link = get_option("-c")->set;
-
+    
     output_name = (char*)mmalloc(strlen(get_option("-o")->value.str) + 1);
     strcpy(output_name, get_option("-o")->value.str);
-    
+        
     file_first();
     while ((file = file_next()) != NULL)
     {
@@ -170,8 +170,16 @@ int main(int argc, char** argv)
         {
             file_set_attr(O, 0);    /* Update the file extension */
 
-            if (!copy_file(oname, file_name()))
-                ccerr(F, "could not write to the output file");
+            if (donot_link && get_option("-o")->set)
+            {
+                if (!copy_file(oname, output_name))
+                    ccerr(F, "could not write to the output file");
+            }
+            else
+            {
+                if (!copy_file(oname, file_name()))
+                    ccerr(F, "could not write to the output file");
+            }
         }
         else
         {
@@ -189,27 +197,14 @@ int main(int argc, char** argv)
 
     if (!errors_encountered && !donot_link)
     {
-        char* optstr = gen_options_str(GBLD);
-        char* callstr = (char*)malloc(5);
-        int len = 4;
-        strcpy(callstr, "gbld");
+        char** opts = gen_options(GBLD);
 
         file_first();
         while ((file = file_next()) != NULL)
-        {
-            callstr = (char*)mrealloc(callstr, len + strlen(file->name) + 2);
-            *(callstr + len) = ' ';
-            strcpy(callstr + len + 1, file->name);
-            len = strlen(callstr);
-        }
-
-        callstr = (char*)mrealloc(callstr, len + strlen(optstr) + 1);
-        strcpy(callstr + len, optstr);
-
-        system(callstr);
-
-        free(optstr);
-        free(callstr);
+            opts = add_option(opts, file->name);
+        
+        exec("gbld", opts);
+        free_options(opts);
     }
 
     return errors_encountered;
@@ -227,9 +222,10 @@ void help()
     puts("Options:");
     puts("  --help          Display this information");
     puts("  --version       Display assembler version information");
-    puts("  -ftabstop=width Set the distance between tab stops");
     puts("  -c              Assemble only, do not link");
     puts("  -o <file>       Place the output into <file>");
+    puts("  -g              Generate debug information file");
+    puts("  -ftabstop=width Set the distance between tab stops");
     exit(EXIT_SUCCESS);
 }
 

@@ -14,24 +14,14 @@
 
 #ifdef _WIN32
     #include <windows.h>
-#elif linux
-    #include <unistd.h>
-    #include <linux/limits.h>
 #else
     #include <unistd.h>
-    #include <limits.h>
-#endif
-
-#ifndef PATH_MAX
-    #ifdef MAX_PATH
-        #define PATH_MAX    MAX_PATH
-    #else
-        #define PATH_MAX    4096
-    #endif
+    #include <sys/types.h>
+    #include <sys/wait.h>
 #endif
 
 #include "errors.h"
-
+#include "defs.h"
 
 /*========================================================================*//**
  * Allocates a block of memory or throws a fatal error in case of failure
@@ -144,6 +134,50 @@ int copy_file(const char* src, const char* dst)
         return 0;
 
     return 1;
+#endif
+}
+
+int exec(char* file, char* const args[])
+{
+#ifdef _WIN32
+#error exec() not handled on windows yet
+#else
+    pid_t pid = fork();
+    if (pid == 0)
+    {
+        execvp(file, args);
+        fprintf(stderr, "execvp(%s) failed: ", file);
+        perror("");
+        exit(EXIT_FAILURE);
+    }
+    else if (pid > 0)
+    {
+        int status;
+        if (waitpid(pid, &status, 0) > 0)
+        {
+            if (WIFEXITED(status) && WEXITSTATUS(status))
+            {
+                add_error();
+                return 0;
+            }
+            else if (!(WIFEXITED(status) && !WEXITSTATUS(status)))
+            {
+                ccerr(F, "%s terminated abnoarmally\n", file);
+                return 0;
+            }
+            return 1;
+        }
+        else
+        {
+            ccerr(F, "waitpid() failed\n");
+            return 0;
+        }
+    }
+    else
+    {
+        ccerr(F, "fork() failed\n");
+        return 0;
+    }
 #endif
 }
 

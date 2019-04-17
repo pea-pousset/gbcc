@@ -42,6 +42,7 @@ void esetfile(const char* name);
 int  errors();
 int  warnings();
 int  fatal();
+void add_error();
 void clear_errors();
 void clear_fatal();
 void err(errtype_t type, const char* message, ...);

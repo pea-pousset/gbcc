@@ -23,6 +23,7 @@ set(inc
 	../common/utils.h
 	../common/gbmmap.h
     ../common/objfile.h
+    ../common/defs.h
 )
 add_executable(gbld ${src} ${inc})
 install(TARGETS gbld DESTINATION bin)

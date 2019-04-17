@@ -11,7 +11,7 @@
 #define GBCC        0   /**< gbcc program id */
 #define GBAS        1   /**< gbas program id */
 #define GBLD        2   /**< gbld program id */
-#define NUM_OPTIONS 7
+#define NUM_OPTIONS 8
 
 typedef enum
 {
@@ -39,10 +39,12 @@ typedef struct
 
 extern option_t options[NUM_OPTIONS];
 
-void      parse_options(int argc, char** argv, int program, void(*help)(),
-                        void(*version)());
+void         parse_options(int argc, char** argv, int program, void(*help)(),
+                           void(*version)());
 option_t* get_option(const char* name);
-char*     gen_options_str(int program);
+char**    gen_options(unsigned program);
+char**    add_option(char** options, char* opt);
+void      free_options(char* options[]);
 
 #endif
 

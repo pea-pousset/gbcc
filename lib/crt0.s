@@ -1,242 +1,147 @@
-SECTION "___crt0___", ROM0[$0000]
-
 ;===============================================================================
 ; Interrupt and reset vectors
 ;===============================================================================
 
-; RST VECTOR $0000
+.org $00        ; RST $00
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0008
+.org $08        ; RST $08
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0010
+.org $10        ; RST $10
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0018
+.org $18        ; RST $18
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0010
+.org $20        ; RST $20
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0018
+.org $28        ; RST $28
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0020
+.org $30        ; RST $30
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; RST VECTOR $0028
+.org $38        ; RST $28
         RET
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; VBLANK INTERRUPT  $0040
-SECTION "___VBLANK_INT___",ROM0[$0040]
+.org $40        ; VBLANK INTERRUPT
         RETI
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; STATUS INTERRUPT  $0048
+.org $48        ; STATUS INTERRUPT
         RETI
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; TIMER INTERRUPT $0050
+.org $50        ; TIMER INTERRUPT
         RETI
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; SERIAL INTERRUPT  $0058
+.org $58        ; SERIAL INTERRUPT
         RETI
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
 
-; JOYPAD INTERRUPT  $0060
+.org $60        ; JOYPAD INTERRUPT
         RETI
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
-        NOP
         
 
 ;===============================================================================
 ; Arithmetic ops
 ;===============================================================================
+.org $68
+.global ___mul_8_
+.global ___div_u8_
 
 ; 8 bit multiplication
 ; HL = H * E
 ;-------------------------------------------------------------------------------
-___mul_8_::
+___mul_8_:
         LD      D,  0
         LD      L,  D
         LD      B,  8
-.loop:
+___mul_8_loop:
         ADD     HL, HL
-        JR      NC, .skip_add
+        JR      NC, ___mul_8_skip_add
         ADD     HL, DE
-.skip_add:
+___mul_8_skip_add:
         DEC     B
-        JR      NZ, .loop
+        JR      NZ, ___mul_8_loop
         RET
 
 ; 8 bit unsigned division and modulo
 ; D = D/E, A = D%E
 ;------------------------------------------------------------------------------- 
-___div_u8_::
+___div_u8_:
         XOR     A
         LD      B, 8
-.loop:        
+___div_u8_loop:
         SLA     D
         RLA
         CP      E
-        JR      C, .skip_sub
+        JR      C, ___div_u8_skip_sub
         SUB     E
         INC     D
-.skip_sub:
+___div_u8_skip_sub:
         DEC     B
-        JR      NZ, .loop
+        JR      NZ, ___div_u8_loop
         RET
-        
-; 152 bytes of free space $0068 - $00FF
-;       DS      152
-        DS      100
 
 ;===============================================================================
 ; Header
 ;===============================================================================
-SECTION "___header___", ROM0[$0100]
+.org    $100
 ; Startup code
         NOP
         JP      ___main
 
 ; Nintendo logo
-        DB      $CE, $ED, $66, $66, $CC, $0D, $00, $0B
-        DB      $03, $73, $00, $83, $00, $0C, $00, $0D
-        DB      $00, $08, $11, $1F, $88, $89, $00, $0E
-        DB      $DC, $CC, $6E, $E6, $DD, $DD, $D9, $99
-        DB      $BB, $BB, $67, $63, $6E, $0E, $EC, $CC
-        DB      $DD, $DC, $99, $9F, $BB, $B9, $33, $3E
+        .byte   $CE, $ED, $66, $66, $CC, $0D, $00, $0B
+        .byte   $03, $73, $00, $83, $00, $0C, $00, $0D
+        .byte   $00, $08, $11, $1F, $88, $89, $00, $0E
+        .byte   $DC, $CC, $6E, $E6, $DD, $DD, $D9, $99
+        .byte   $BB, $BB, $67, $63, $6E, $0E, $EC, $CC
+        .byte   $DD, $DC, $99, $9F, $BB, $B9, $33, $3E
         
 ; Title
-        DB      "           "
+        .byte   'O', 'U', 'T', '.', 'G', 'B', ' ', ' ', ' ', ' ', ' '
         
 ; Manufacturer code
-        DB      $BA, $AD, $F0, $0D
+        .byte   $BA, $AD, $F0, $0D
         
 ; Gameboy Color compatibility
-        DB      0
+        .byte   0
         
 ; New licensee code
-        DB      "  "
+        .byte   ' ', ' '
         
 ; Super Gameboy compatibility
-        DB      0
+        .byte   0
         
 ; Cartridge Type
-        DB      0
+        .byte   0
 
 ; Rom size
-        DB      0
+        .byte   0
 
 ; Ram size
-        DB      0
+        .byte   0
         
 ; Destination code
-        DB      1
+        .byte   1
         
 ; Old licensee code
-        DB      $33
+        .byte   $33
         
 ; Rom version
-        DB      0
+        .byte   0
         
 ; Header checksum
-        DB      $FF
+        .byte   0
         
 ; Global checksum
-        DW      $FFFF
+        .word   0
 
 ;===============================================================================
 ; MAIN
 ;=============================================================================== 
-SECTION "___main___", ROM0[$0150]
+.org    $150
 ___main:
         DI
         LD      SP, $FFFE
@@ -245,18 +150,21 @@ ___main:
 
         CALL    main        
 
-.loop:
+_inf_loop:
         HALT
         NOP
-        JR      .loop
+        JR      _inf_loop
         
-; SECTION "___wram_start___", WRAM0[$C000]
 
-SECTION "vars", WRAM0
-cur_y:  DW
 
-SECTION "nums", ROM0
-init_nums::
+
+.org    $D000           ; WRAM BANK 1
+cur_y:  .word
+
+.org    $4000           ; ROM BANK 1
+.global print_a
+
+init_nums:
 ; Turn off the screen
 ldh a,  [$44]           ; LCDC Y
 cp      $90
@@ -269,56 +177,56 @@ ldh     [$42], a        ; SCY
 ldh     [$43], a        ; SCX
 
 ld      hl, cur_y
-ld      [hl+], a
+ldi     [hl], a
 ld      [hl], a
 
 ; Load tiles
 ld      hl, num_tiles
 ld      de, $8000       ; VRAM
 ld      b,  16          ; 17 tiles
-.loop_1:
-ld      a,  [hl+]
+__loop_1:
+ldi     a,  [hl]
 ld      [de], a
 inc     de
 dec     c
-jr      nz, .loop_1
+jr      nz, __loop_1
 ld      c,  17
 dec     b
-jr      nz,  .loop_1
+jr      nz,  __loop_1
 
 ; Clear background
 ld      hl, $9800
 ld      b,  $20
 ld      c,  $20
 ld      a,  16          ; Empty tile
-.loop_2:
-ld      [hl+], a
+init_nums_loop_2:
+ldi     [hl], a
 dec     c
-jr      nz, .loop_2
+jr      nz, init_nums_loop_2
 ld      c, $20
 dec     b
-jr      nz, .loop_2
+jr      nz, init_nums_loop_2
 
 ld      a, $91
 ldh     [$40], a
 ret
 
 
-print_a::
+print_a:
 ld      c, a
 ld      b, 0
-jr      print_hl.wait_vblank
-print_hl::
+jr      print_hl_wait_vblank
+print_hl:
 ld      b, h
 ld      c, l
-.wait_vblank
+print_hl_wait_vblank:
 ldh     a, [$44]    ; LCD_Y
 cp      $90
-jr      nz, .wait_vblank
+jr      nz, print_hl_wait_vblank
 
 ; Value of cur_y in DE
 ld      hl, cur_y
-ld      a, [hl+]
+ldi     a, [hl]
 ld      e, a
 ld      a, [hl]
 ld      d, a
@@ -330,15 +238,15 @@ add     hl, de
 ld      a, b
 swap    a
 and     $0F
-ld      [hl+], a
+ldi     [hl], a
 ld      a, b
 and     $0F
-ld      [hl+], a
+ldi     [hl], a
 ; print c
 ld      a, c
 swap    a
 and     $0F
-ld      [hl+], a
+ldi     [hl], a
 ld      a, c
 and     $0F
 ld      [hl], a
@@ -346,9 +254,9 @@ ld      [hl], a
 ld      a, e
 add     a, $20
 ld      e, a
-jr      nc, .skip
+jr      nc, __skip
 inc     d
-.skip
+__skip:
 ld      hl, cur_y
 ld      [hl], e
 inc     hl
@@ -356,40 +264,40 @@ ld      [hl], d
 ret
 
 num_tiles:
-DB $00,$00,$3C,$3C,$66,$66,$6E,$6E
-DB $7E,$7E,$76,$76,$66,$66,$3C,$3C
-DB $00,$00,$18,$18,$78,$78,$18,$18
-DB $18,$18,$18,$18,$18,$18,$7E,$7E
-DB $00,$00,$3C,$3C,$66,$66,$06,$06
-DB $1C,$1C,$30,$30,$66,$66,$7E,$7E
-DB $00,$00,$3C,$3C,$66,$66,$06,$06
-DB $1C,$1C,$06,$06,$66,$66,$3C,$3C
-DB $00,$00,$0E,$0E,$1E,$1E,$36,$36
-DB $66,$66,$7F,$7F,$06,$06,$06,$06
-DB $00,$00,$7E,$7E,$60,$60,$7C,$7C
-DB $06,$06,$06,$06,$66,$66,$3C,$3C
-DB $00,$00,$1C,$1C,$30,$30,$60,$60
-DB $7C,$7C,$66,$66,$66,$66,$3C,$3C
-DB $00,$00,$7E,$7E,$66,$66,$06,$06
-DB $0C,$0C,$18,$18,$30,$30,$30,$30
-DB $00,$00,$3C,$3C,$66,$66,$66,$66
-DB $3C,$3C,$66,$66,$66,$66,$3C,$3C
-DB $00,$00,$3C,$3C,$66,$66,$66,$66
-DB $3E,$3E,$06,$06,$0C,$0C,$38,$38
-DB $00,$00,$18,$18,$3C,$3C,$66,$66
-DB $66,$66,$7E,$7E,$66,$66,$66,$66
-DB $00,$00,$7E,$7E,$33,$33,$33,$33
-DB $3E,$3E,$33,$33,$33,$33,$7E,$7E
-DB $00,$00,$1E,$1E,$33,$33,$60,$60
-DB $60,$60,$60,$60,$33,$33,$1E,$1E
-DB $00,$00,$7E,$7E,$36,$36,$33,$33
-DB $33,$33,$33,$33,$36,$36,$7E,$7E
-DB $00,$00,$7F,$7F,$31,$31,$34,$34
-DB $3C,$3C,$34,$34,$31,$31,$7F,$7F
-DB $00,$00,$7F,$7F,$31,$31,$34,$34
-DB $3C,$3C,$34,$34,$30,$30,$78,$78
-DB $00,$00,$00,$00,$00,$00,$00,$00
-DB $00,$00,$00,$00,$00,$00,$00,$00
+.byte $00,$00,$3C,$3C,$66,$66,$6E,$6E
+.byte $7E,$7E,$76,$76,$66,$66,$3C,$3C
+.byte $00,$00,$18,$18,$78,$78,$18,$18
+.byte $18,$18,$18,$18,$18,$18,$7E,$7E
+.byte $00,$00,$3C,$3C,$66,$66,$06,$06
+.byte $1C,$1C,$30,$30,$66,$66,$7E,$7E
+.byte $00,$00,$3C,$3C,$66,$66,$06,$06
+.byte $1C,$1C,$06,$06,$66,$66,$3C,$3C
+.byte $00,$00,$0E,$0E,$1E,$1E,$36,$36
+.byte $66,$66,$7F,$7F,$06,$06,$06,$06
+.byte $00,$00,$7E,$7E,$60,$60,$7C,$7C
+.byte $06,$06,$06,$06,$66,$66,$3C,$3C
+.byte $00,$00,$1C,$1C,$30,$30,$60,$60
+.byte $7C,$7C,$66,$66,$66,$66,$3C,$3C
+.byte $00,$00,$7E,$7E,$66,$66,$06,$06
+.byte $0C,$0C,$18,$18,$30,$30,$30,$30
+.byte $00,$00,$3C,$3C,$66,$66,$66,$66
+.byte $3C,$3C,$66,$66,$66,$66,$3C,$3C
+.byte $00,$00,$3C,$3C,$66,$66,$66,$66
+.byte $3E,$3E,$06,$06,$0C,$0C,$38,$38
+.byte $00,$00,$18,$18,$3C,$3C,$66,$66
+.byte $66,$66,$7E,$7E,$66,$66,$66,$66
+.byte $00,$00,$7E,$7E,$33,$33,$33,$33
+.byte $3E,$3E,$33,$33,$33,$33,$7E,$7E
+.byte $00,$00,$1E,$1E,$33,$33,$60,$60
+.byte $60,$60,$60,$60,$33,$33,$1E,$1E
+.byte $00,$00,$7E,$7E,$36,$36,$33,$33
+.byte $33,$33,$33,$33,$36,$36,$7E,$7E
+.byte $00,$00,$7F,$7F,$31,$31,$34,$34
+.byte $3C,$3C,$34,$34,$31,$31,$7F,$7F
+.byte $00,$00,$7F,$7F,$31,$31,$34,$34
+.byte $3C,$3C,$34,$34,$30,$30,$78,$78
+.byte $00,$00,$00,$00,$00,$00,$00,$00
+.byte $00,$00,$00,$00,$00,$00,$00,$00
 
 
 

@@ -4,7 +4,7 @@
 
 static int num_rom_banks = 2;
 static int num_ram_banks = 1;
-static int num_wram_banks = 1;
+static int num_wram_banks = 2;
 static int num_vram_banks = 1;
 
 static cartridge_t cartridge =
@@ -21,7 +21,7 @@ void set_cartridge(cartridge_t cart)
     int romsize;
     
     if (cart.gb_type == dmg)
-        num_wram_banks = 1;
+        num_wram_banks = 2;
     
     if (cart.cart_type == rom_only)
     {

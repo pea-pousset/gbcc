@@ -29,6 +29,7 @@ set(inc
     ../common/options.h
     ../common/utils.h
     ../common/gbmmap.h
+    ../common/defs.h
 )
 add_executable(gbcc ${src} ${inc})
 install(TARGETS gbcc DESTINATION bin)
