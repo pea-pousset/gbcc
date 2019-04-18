@@ -26,4 +26,5 @@ set(inc
     ../common/defs.h
 )
 add_executable(gbld ${src} ${inc})
+set_property(TARGET gbld PROPERTY C_STANDARD 90)
 install(TARGETS gbld DESTINATION bin)

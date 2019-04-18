@@ -30,4 +30,5 @@ set(inc
     ../common/defs.h
 )
 add_executable(gbas ${src} ${inc})
+set_property(TARGET gbas PROPERTY C_STANDARD 90)
 install(TARGETS gbas DESTINATION bin)

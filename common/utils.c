@@ -87,7 +87,7 @@ char* m_tmpnam()
         tmp_path = getenv("TEMPDIR");
     if (!tmp_path)
         tmp_path = "";
-    
+
     strcpy(name, tmp_path);
     getcwd(cwd, PATH_MAX);
     chdir(tmp_path);

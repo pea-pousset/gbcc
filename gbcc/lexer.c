@@ -129,7 +129,7 @@ static int      bl;      /**< Current look-ahead character backup */
 static int      bprev;   /**< Previous character backup */
 static unsigned bline;   /**< Current line number backup */
 static unsigned bcolumn; /**< Current column backup */
-static unsigned bseek;   /**< */
+static unsigned bseek;   /**< Current position in the file backup */
 static int      tabstop; /**< Width of the tab character */
 
 static token_t t;        /**< Current token */
@@ -457,7 +457,7 @@ void readbyte()
 
 /*========================================================================*//**
  * If available, read a digit in base 'base' and convert it to a
- * decimal factor ; if no more digit is available, return -1
+ * decimal factor ; if no more digit are available, return -1
  *//*=========================================================================*/
 int get_digit(int base)
 {

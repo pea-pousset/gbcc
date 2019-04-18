@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 include_directories(../common)
-set(src 
+set(src
 	ast.c
 	codegen.c
 	lexer.c
@@ -32,4 +32,5 @@ set(inc
     ../common/defs.h
 )
 add_executable(gbcc ${src} ${inc})
+set_property(TARGET gbcc PROPERTY C_STANDARD 90)
 install(TARGETS gbcc DESTINATION bin)

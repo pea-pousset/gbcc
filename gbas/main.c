@@ -107,10 +107,10 @@ int main(int argc, char** argv)
 
     tabstop = get_option("-ftabstop=")->value.num;
     donot_link = get_option("-c")->set;
-    
+
     output_name = (char*)mmalloc(strlen(get_option("-o")->value.str) + 1);
     strcpy(output_name, get_option("-o")->value.str);
-        
+
     file_first();
     while ((file = file_next()) != NULL)
     {
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
         fclose(infile);
         remove(oname);
     }
-    
+
     free_sections();
     free_syms();
     free_relocs();
@@ -202,7 +202,7 @@ int main(int argc, char** argv)
         file_first();
         while ((file = file_next()) != NULL)
             opts = add_option(opts, file->name);
-        
+
         exec("gbld", opts);
         free_options(opts);
     }
@@ -231,7 +231,11 @@ void help()
 
 void version()
 {
+#ifdef NDEBUG
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#else
+    printf("%s %d.%d debug\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#endif
     exit(EXIT_SUCCESS);
 }
 
@@ -245,7 +249,7 @@ void on_fatal_error(int from_program)
 
     if (outfile)
         fclose(outfile);
-    
+
     free_sections();
     free_syms();
     free_relocs();

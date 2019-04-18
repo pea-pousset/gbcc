@@ -19,10 +19,10 @@ static cartridge_t cartridge =
 void set_cartridge(cartridge_t cart)
 {
     int romsize;
-    
+
     if (cart.gb_type == dmg)
         num_wram_banks = 2;
-    
+
     if (cart.cart_type == rom_only)
     {
         if (cart.rom_size != _32K)
@@ -32,10 +32,10 @@ void set_cartridge(cartridge_t cart)
     }
     else
         err(F, "unknwon cartridge type");
-    
+
     romsize = 0x8000 << (int)cart.rom_size;
     num_rom_banks = romsize / ROM_BANK_SIZE;
-    
+
     switch(cart.ram_size)
     {
         /* In order to make .org work we need a RAM slot even if there
@@ -96,7 +96,7 @@ gbspace_t get_space(unsigned address)
         return hram;
     if (address == 0xFFFF)
         return ie;
-    
+
     return out_of_mmap;
 }
 

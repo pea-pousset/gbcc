@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
     output_name = (char*)mmalloc(strlen(get_option("-o")->value.str) + 1);
     strcpy(output_name, get_option("-o")->value.str);
-    
+
     gen_debug = get_option("-g")->set;
 
     init_rom();
@@ -67,23 +67,23 @@ int main(int argc, char** argv)
             ccerr(F, "unable to open \"%s\"", file->name);
             continue;
         }
-        
+
         fseek(infile, 0, SEEK_END);
         fsize = ftell(infile);
         fseek(infile, 0, SEEK_SET);
-        
+
         set_infile(infile);
         read_obj_header();
-        
+
         filename = (char*)mmalloc(strlen(file->name) + 1);
         strcpy(filename, file->name);
         list_add(&lfiles, file_id, filename, 0);
-        
+
         while (ftell(infile) < fsize)
         {
             block_header_t* header= read_block_header();
             init_map();
-            
+
             if (header->type == sections)
             {
                 section_entry_t* sect;
@@ -92,6 +92,7 @@ int main(int argc, char** argv)
 #endif
                 for (i = 0; i < header->num_entries; ++i)
                 {
+                    unsigned k;
                     sect = read_section_entry();
                     list_add(&lsections, file_id, sect, 0);
                     ++numsect;
@@ -101,7 +102,7 @@ int main(int argc, char** argv)
                     printf("    - Offset:    %04x\n", sect->offset);
                     printf("    - Bank:      %d\n", sect->bank_num);
                     printf("    - Data size: %d\n", sect->data_size);
-                    for (int k = 0; k < sect->data_size; ++k)
+                    for (k = 0; k < sect->data_size; ++k)
                     {
                         if (k && (k % 16) == 0)
                             printf("\n");
@@ -159,7 +160,7 @@ int main(int argc, char** argv)
         fclose(infile);
         ++file_id;
     }
-    
+
     /* Search for duplicate global symbols */
     psyms1 = lsymbols;
     while (psyms1)
@@ -185,12 +186,12 @@ int main(int argc, char** argv)
                 ccerr(E, "duplicate symbol '%s'",
                     ((symbol_entry_t*)(psyms2->data))->id);
             }
-            
+
             psyms2 = psyms2->next;
         }
         psyms1 = psyms1->next;
     }
-    
+
     /* .org allocation */
     list = lsections;
     while (list)
@@ -198,22 +199,22 @@ int main(int argc, char** argv)
         list_t* sfile = list_at(lfiles, list->file_id);
         section_entry_t* sect = (section_entry_t*)list->data;
         esetfile(sfile->data);
-        
+
         if (sect->type != org)
         {
             list = list->next;
             continue;
         }
-        
+
         sect->offset = allocate(sfile->data, sect);
         list->flags = SECT_TREATED;
-        
+
         list = list->next;
     }
-    
+
     TODO("rom/ram/wram/vram + offset");
     TODO("rom/ram/wram/vram");
-    
+
     /* link extern symbols */
     list = lsymbols;
     while(list)
@@ -222,13 +223,13 @@ int main(int argc, char** argv)
         symbol_entry_t* sym = (symbol_entry_t*)(list->data);
         list_t* tsyms = lsymbols; /* target symbols list */
         symbol_entry_t* tsym;     /* target symbol */
-        
+
         if (sym->type != _extern)
         {
             list = list->next;
             continue;
         }
-        
+
         esetfile((char*)sfile->data);
         while (tsyms)
         {
@@ -238,13 +239,13 @@ int main(int argc, char** argv)
                 tsyms = tsyms->next;
                 continue;
             }
-            
+
             if (strcmp((char*)sym->id, (char*)tsym->id) == 0)
                 break;
-            
+
             tsyms = tsyms->next;
         }
-        
+
         if (tsyms == NULL)
             err(E, "symbol '%s' unsolved", sym->id);
         else
@@ -253,10 +254,10 @@ int main(int argc, char** argv)
             sym->section_id = tsym->section_id;
             sym->offset = tsym->offset;
         }
-        
+
         list = list->next;
     }
-    
+
     /* relocs */
     list = lrelocations;
     while (list)
@@ -268,7 +269,7 @@ int main(int argc, char** argv)
         section_entry_t* reloc_sect;
         section_entry_t* symbol_sect;
         int target_addr;
-        
+
         esetfile((char*)lfile->data);
 
         /* search for target symbol among symbols created in the same file */
@@ -283,18 +284,18 @@ int main(int argc, char** argv)
                 break;
             target_syms = target_syms->next;
         }
-        
+
         if (target_syms == NULL)
             err(F, "relocation entries corrupted");
-        
+
         target_sym = (symbol_entry_t*)(target_syms->data);
         reloc_sect = get_section(list->file_id, reloc->section_id);
         if (target_sym->type == _extern)
             symbol_sect = get_section(target_syms->flags, target_sym->section_id);
         else
             symbol_sect = get_section(target_syms->file_id, target_sym->section_id);
-        
-        
+
+
         target_addr = symbol_sect->offset + target_sym->offset;
         if (reloc->flags == relative)
         {
@@ -308,10 +309,10 @@ int main(int argc, char** argv)
             reloc_sect->data[reloc->offset] = target_addr & 0xFF;
             reloc_sect->data[reloc->offset + 1] = (target_addr >> 8) & 0xFF;
         }
-        
+
         list = list->next;
     }
-    
+
     /* Write sections to rom banks */
     list = lsections;
     while (list && !errors())
@@ -324,13 +325,13 @@ int main(int argc, char** argv)
     {
         if ( ! (outfile = fopen(output_name, "wb")) )
             ccerr(F, "unable to open \"%s\"", output_name);
-        
+
         fix_rom();
         for (i = 0; i < get_num_rom_banks(); ++i)
             fwrite(get_rom_bank(i), ROM_BANK_SIZE, 1, outfile);
         fclose(outfile);
     }
-    
+
     /* Write sym file */
     if (!errors() && gen_debug)
     {
@@ -354,10 +355,10 @@ int main(int argc, char** argv)
         *p++ = 'y';
         *p++ = 'm';
         list = lsymbols;
-        
+
         if ( ! (outfile = fopen(output_name, "w")) )
             ccerr(F, "unable to open \"%s\"", output_name);
-        
+
         while (list && !errors())
         {
             syms = (symbol_entry_t*)(list->data);
@@ -373,7 +374,7 @@ int main(int argc, char** argv)
             }
             list = list->next;
         }
-        
+
         fclose(outfile);
     }
 
@@ -406,7 +407,11 @@ void help()
 
 void version()
 {
+#ifdef NDEBUG
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#else
+    printf("%s %d.%d debug\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#endif
     exit(EXIT_SUCCESS);
 }
 
@@ -459,10 +464,10 @@ void write_section(section_entry_t* sect)
         TODO("write non org sections");
         return;
     }
-    
+
     while(count--)
         *dest++ = *src++;
-    
+
     free(sect->data);
     sect->data = NULL;
 }

@@ -54,13 +54,13 @@ void init_map()
 {
     unsigned i;
     free_map();
-    
+
     slot_rom_0 = (slot_t*)mmalloc(sizeof(slot_t));
     slot_rom_0->address = mmap_addressof(rom_0);
     slot_rom_0->size = mmap_get_section_size(rom_0);
     slot_rom_0->allocs = NULL;
     strcpy(slot_rom_0->name, "ROM 0");
-    
+
     slot_rom_n = (slot_t**)mmalloc(sizeof(slot_t*) * get_num_rom_banks() - 1);
     for (i = 0; i < get_num_rom_banks() - 1; ++i)
     {
@@ -70,7 +70,7 @@ void init_map()
         slot_rom_n[i]->allocs = NULL;
         sprintf(slot_rom_n[i]->name, "ROM %d", i + 1);
     }
-    
+
     slot_vram = (slot_t**)mmalloc(sizeof(slot_t*) * get_num_vram_banks());
     for (i = 0; i < get_num_vram_banks(); ++i)
     {
@@ -80,7 +80,7 @@ void init_map()
         slot_vram[i]->allocs = NULL;
         sprintf(slot_vram[i]->name, "VRAM %d", i);
     }
-    
+
     slot_ram = (slot_t**)mmalloc(sizeof(slot_t*) * get_num_ram_banks());
     for (i = 0; i < get_num_ram_banks(); ++i)
     {
@@ -90,13 +90,13 @@ void init_map()
         slot_ram[i]->allocs = NULL;
         sprintf(slot_ram[i]->name, "RAM %d", i);
     }
-    
+
     slot_wram_0 = (slot_t*)mmalloc(sizeof(slot_t));
     slot_wram_0->address = mmap_addressof(wram_0);
     slot_wram_0->size = mmap_get_section_size(wram_0);
     slot_wram_0->allocs = NULL;
     strcpy(slot_wram_0->name, "WRAM 0");
-    
+
     slot_wram_n = (slot_t**)mmalloc(sizeof(slot_t*) * get_num_wram_banks()-1);
     for (i = 0; i < get_num_wram_banks()-1; ++i)
     {
@@ -106,37 +106,37 @@ void init_map()
         slot_wram_n[i]->allocs = NULL;
         sprintf(slot_wram_n[i]->name, "WRAM %d", i+1);
     }
-   
+
     slot_echo = (slot_t*)mmalloc(sizeof(slot_t));
     slot_echo->address = mmap_addressof(echo);
     slot_echo->size = mmap_get_section_size(echo);
     slot_echo->allocs = NULL;
     strcpy(slot_echo->name, "ECHO");
-    
+
     slot_oam = (slot_t*)mmalloc(sizeof(slot_t));
     slot_oam->address = mmap_addressof(oam);
     slot_oam->size = mmap_get_section_size(oam);
     slot_oam->allocs = NULL;
     strcpy(slot_oam->name, "OAM");
-    
+
     slot_unusable = (slot_t*)mmalloc(sizeof(slot_t));
     slot_unusable->address = mmap_addressof(unusable);
     slot_unusable->size = mmap_get_section_size(unusable);
     slot_unusable->allocs = NULL;
     strcpy(slot_unusable->name, "UNUSABLE");
-    
+
     slot_io = (slot_t*)mmalloc(sizeof(slot_t));
     slot_io->address = mmap_addressof(io);
     slot_io->size = mmap_get_section_size(io);
     slot_io->allocs = NULL;
     strcpy(slot_io->name, "IO");
-    
+
     slot_hram = (slot_t*)mmalloc(sizeof(slot_t));
     slot_hram->address = mmap_addressof(hram);
     slot_hram->size = mmap_get_section_size(hram);
     slot_hram->allocs = NULL;
     strcpy(slot_hram->name, "HRAM");
-    
+
     slot_ie = (slot_t*)mmalloc(sizeof(slot_t));
     slot_ie->address = mmap_addressof(ie);
     slot_ie->size = mmap_get_section_size(ie);
@@ -147,62 +147,62 @@ void init_map()
 void free_map()
 {
     unsigned i;
-    
+
     if (!slot_rom_0)
         return;
-    
+
     free_allocs(slot_rom_0);
     free(slot_rom_0);
-    
+
     for (i = 0; i < get_num_rom_banks() - 1; ++i)
     {
         free_allocs(slot_rom_n[i]);
         free(slot_rom_n[i]);
         free(slot_rom_n);
     }
-    
+
     for (i = 0; i < get_num_vram_banks(); ++i)
     {
         free_allocs(slot_vram[i]);
         free(slot_vram[i]);
         free(slot_vram);
     }
-    
+
     for (i = 0; i < get_num_ram_banks(); ++i)
     {
         free_allocs(slot_ram[i]);
         free(slot_ram[i]);
         free(slot_ram);
     }
-    
+
     free_allocs(slot_wram_0);
     free(slot_wram_0);
-    
+
     for (i = 0; i < get_num_wram_banks() - 1; ++i)
     {
         free_allocs(slot_wram_n[i]);
         free(slot_wram_n[i]);
         free(slot_wram_n);
     }
-    
+
     free_allocs(slot_echo);
     free(slot_echo);
-    
+
     free_allocs(slot_oam);
     free(slot_oam);
 
     free_allocs(slot_unusable);
     free(slot_unusable);
-    
+
     free_allocs(slot_io);
     free(slot_io);
-    
+
     free_allocs(slot_hram);
     free(slot_hram);
-    
+
     free_allocs(slot_ie);
     free(slot_ie);
-    
+
     slot_rom_0 = NULL;
     slot_rom_n = NULL;
     slot_vram = NULL;
@@ -230,7 +230,7 @@ unsigned allocate(const char* filename, section_entry_t* sect)
                   sect->offset, sect->data_size);
         return sect->offset;
     }
-    
+
     return ALLOC_FAILED;
 }
 
@@ -253,7 +253,7 @@ void add_alloc(const char* filename, char* sectname, slot_t* slot, int address,
     alloc_t* alloc = (alloc_t*)mmalloc(sizeof(alloc_t));
     alloc_t* elem;
     int inserted = 0;
-    
+
     if (address + size > slot->address + slot->size)
     {
         ccerr(E, "%s: %s: section '%s' bounds exceeded",
@@ -261,12 +261,12 @@ void add_alloc(const char* filename, char* sectname, slot_t* slot, int address,
         free(alloc);
         return;
     }
-    
+
     alloc->address = address;
     alloc->size = size;
     alloc->filename = (char*)mmalloc(strlen(filename)+1);
     strcpy(alloc->filename, filename);
-    
+
     if (slot->allocs == NULL)
     {
         alloc->prev = NULL;
@@ -274,7 +274,7 @@ void add_alloc(const char* filename, char* sectname, slot_t* slot, int address,
         slot->allocs = alloc;
         inserted = 1;
     }
-    
+
     elem = slot->allocs;
     while (!inserted && elem->next && address > elem->address)
     {
@@ -284,26 +284,26 @@ void add_alloc(const char* filename, char* sectname, slot_t* slot, int address,
             alloc->next = NULL;
             elem->next = alloc;
             alloc->prev = elem;
-            
+
             inserted = 1;
             break;
         }
         elem = elem->next;
     }
-    
+
     if (!inserted)
     {
         /* Insert before the first element with a higher address */
         alloc->prev = elem->prev;
         elem->prev = alloc;
         alloc->next = elem;
-        
+
         if (elem->prev != NULL)
             elem->prev->next = elem;
         else
             slot->allocs = elem;
     }
-    
+
     TODO("Check for overlapping sections or full sections");
 }
 

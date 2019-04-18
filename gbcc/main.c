@@ -194,19 +194,19 @@ int main(int argc, char** argv)
             int    del = file->tmp;
             char** opts;
             int oset = get_option("-o")->set;
-            
+
             iname = (char*)mmalloc(strlen(file->name) + 1);
             strcpy(iname, file->name);
-            
+
             if (!donot_link && file_count() > 1)
                 get_option("-o")->set = 0;
-            
+
             opts = gen_options(GBAS);
             /* We don't want gbas to invoke the linker */
             if (!donot_link)
                 opts = add_option(opts, "-c");
             get_option("-o")->set = oset;
-            
+
             opts = add_option(opts, iname);
             if (exec("gbas", opts))
             {
@@ -216,7 +216,7 @@ int main(int argc, char** argv)
             }
         }
     }
-    
+
     file_first();
     if (!donot_link && !errors())
     {
@@ -229,7 +229,7 @@ int main(int argc, char** argv)
 
     if (errors())
         return EXIT_FAILURE;
-    
+
     return EXIT_SUCCESS;
 }
 
@@ -250,7 +250,11 @@ void help()
 
 void version()
 {
+#ifdef NDEBUG
     printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#else
+    printf("%s %d.%d debug\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+#endif
     exit(EXIT_SUCCESS);
 }
 
