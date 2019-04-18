@@ -64,7 +64,7 @@
 char* m_tmpnam()
 {
     static char name[PATH_MAX * 2 + 1];
-#if !defined(_WIN32) && !defined(__APPLE__)
+#if !defined(__APPLE__)
     char cwd[PATH_MAX + 1];
 #endif
     name[0] = 0;
@@ -140,7 +140,43 @@ int copy_file(const char* src, const char* dst)
 int exec(char* file, char* const args[])
 {
 #ifdef _WIN32
-#error exec() not handled on windows yet
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+    DWORD exit_code;
+    char** pargs = (char**)args;
+    unsigned cmdlen = 0;
+    char* cmdline = NULL;
+    while (*pargs)
+    {
+        printf("- %s\n", *pargs);
+        cmdlen += strlen(*pargs) + 1;
+        ++pargs;
+    }
+    cmdline = (char*)mmalloc(cmdlen+1);
+    cmdline[0] = 0;
+    pargs = (char**)args;
+    while (*pargs)
+    {
+        strcat(cmdline, *pargs++);
+        strcat(cmdline, " ");
+    }
+    printf("%s\n", cmdline);
+    
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    ZeroMemory(&pi, sizeof(pi));
+    if (!CreateProcessA(NULL, cmdline, NULL, NULL, FALSE, 0, NULL, NULL, 
+                        &si, &pi))
+    {
+        ccerr(F, "CreateProcess() failed");
+        return 0;
+    }
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    GetExitCodeProcess(pi.hProcess, &exit_code);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+    
+    return (int)exit_code;
 #else
     pid_t pid = fork();
     if (pid == 0)

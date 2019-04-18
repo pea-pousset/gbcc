@@ -16,10 +16,10 @@
 #include "utils.h"
 
 #ifdef _WIN32
-const char* const notestr = "note";
-const char* const warnstr = "warning";
-const char* const errstr  = "error";
-const char* const ferrstr = "fatal error";
+const char* const notestr = "note: ";
+const char* const warnstr = "warning: ";
+const char* const errstr  = "error: ";
+const char* const ferrstr = "fatal error: ";
 #else
 const char* const notestr = "\x1B[36mnote\x1B[0m: ";
 const char* const warnstr = "\x1B[33mwarning\x1B[0m: ";

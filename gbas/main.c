@@ -232,9 +232,9 @@ void help()
 void version()
 {
 #ifdef NDEBUG
-    printf("%s %d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+    printf("%s %d.%d.%d\n", pgm, VERSION_MAJOR, VERSION_MINOR, PATCH);
 #else
-    printf("%s %d.%d debug\n", pgm, VERSION_MAJOR, VERSION_MINOR);
+    printf("%s %d.%d.%d debug\n", pgm, VERSION_MAJOR, VERSION_MINOR, PATCH);
 #endif
     exit(EXIT_SUCCESS);
 }
